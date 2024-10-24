@@ -1,14 +1,15 @@
-import postgres from "postgres";
+import { PrismaClient } from "@prisma/client";
 
-let { ENV, PGHOST, PGDATABASE, PGUSER, PGPASSWORD, PGHOST_DEV } = process.env;
+const prismaClientSingleton = () => {
+  return new PrismaClient();
+};
 
-const sql = postgres({
-  host: ENV === "production" ? PGHOST : PGHOST_DEV,
-  database: PGDATABASE,
-  username: PGUSER,
-  password: PGPASSWORD,
-  port: 5432,
-  ssl: "require",
-});
+declare const globalThis: {
+  prismaGlobal: ReturnType<typeof prismaClientSingleton>;
+} & typeof global;
 
-export { sql };
+const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+
+export default prisma;
+
+if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prisma;

@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sql } from "@/lib/db";
+import prisma from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
-    const res = await sql`
-      CREATE TABLE IF NOT EXISTS Persons (
-        PersonID int,
-        LastName varchar(255),
-        FirstName varchar(255),
-        Address varchar(255),
-        City varchar(255)
-      )
-    `;
-    console.log(res);
+    // const data = await prisma.user.findFirst();
+    const data = await prisma.$queryRaw`select * from "User"`;
     return NextResponse.json({
       status: true,
-      message: "Table created successfully",
+      data: data,
     });
   } catch (error: unknown) {
     console.error(error);
