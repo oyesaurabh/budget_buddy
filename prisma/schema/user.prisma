@@ -1,0 +1,5 @@
+// user.prisma
+model User {
+    id    Int    @id @default(autoincrement())
+    posts Post[]
+}
