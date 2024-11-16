@@ -16,13 +16,13 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import axios from "axios";
 import { toast } from "sonner";
+import { z } from "zod";
+import axios from "axios";
 
 interface loginResponse {
   data: {
@@ -54,7 +54,7 @@ export default function SignIn() {
       if (!status) throw new Error(message);
 
       toast.success(message || "Login Successful");
-      window.location.href = "/";
+      window.location.href = "/app";
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "something went wrong");
       console.error(error);

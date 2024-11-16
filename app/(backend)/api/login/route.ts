@@ -60,7 +60,7 @@ const loginUser = async (request: NextRequest) => {
     { status: 200 }
   );
   // Set the JWT in the response as a cookie
-  response.cookies.set("Authorization", jwtToken, {
+  response.cookies.set("sessionToken", jwtToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 24 * 60 * 60, // 1 days

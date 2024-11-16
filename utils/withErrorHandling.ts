@@ -5,11 +5,8 @@
 //   PrismaClientUnknownRequestError,
 //   PrismaClientValidationError,
 // } from "@prisma/client/runtime/library";
-import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
-
-const prisma = new PrismaClient();
 
 export const withErrorHandling = (
   handler: (request: NextRequest) => Promise<NextResponse>
@@ -27,21 +24,21 @@ export const withErrorHandling = (
           { status: 400 }
         );
       }
-      if (
-        error instanceof PrismaClientUnknownRequestError ||
-        error instanceof PrismaClientKnownRequestError ||
-        error instanceof PrismaClientInitializationError ||
-        error instanceof PrismaClientRustPanicError ||
-        error instanceof PrismaClientValidationError
-      ) {
-        return NextResponse.json(
-          {
-            status: false,
-            message: "Database Error",
-          },
-          { status: 500 }
-        );
-      }
+      // if (
+      //   error instanceof PrismaClientUnknownRequestError ||
+      //   error instanceof PrismaClientKnownRequestError ||
+      //   error instanceof PrismaClientInitializationError ||
+      //   error instanceof PrismaClientRustPanicError ||
+      //   error instanceof PrismaClientValidationError
+      // ) {
+      //   return NextResponse.json(
+      //     {
+      //       status: false,
+      //       message: "Database Error",
+      //     },
+      //     { status: 500 }
+      //   );
+      // }
 
       if (error instanceof Error) {
         return NextResponse.json(
