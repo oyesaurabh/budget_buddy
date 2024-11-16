@@ -1,5 +1,3 @@
-import prisma from "@/lib/db";
-
 const SECRET = process.env.SALT_SECRET_KEY ?? "defaultvalue";
 
 // Function to generate a random hash using Web Crypto API
@@ -28,8 +26,5 @@ export const hashPassword = async (salt: string, password: string) => {
 
 // Function to check session using Prisma
 export const checkSession = async (sessionToken: string) => {
-  // const sessionExists = await prisma.sessions.findFirst({
-  //   where: { token: sessionToken, expiresAt: { gt: new Date() } },
-  // });
-  return !!true;
+  return true;
 };

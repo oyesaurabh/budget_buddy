@@ -1,9 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
-import { middleware as customMiddleware } from "./middleware/index";
+import { customMiddleware } from "./middlewareUtils/main";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
   for (const { matcher, middleware } of customMiddleware) {
     if (pathname.match(new RegExp(matcher))) {
       return await middleware(request);
@@ -12,7 +11,10 @@ export async function middleware(request: NextRequest) {
 
   return NextResponse.next();
 }
-
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: [
+    "/api/:path*",
+    "/app/:path*",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
 };

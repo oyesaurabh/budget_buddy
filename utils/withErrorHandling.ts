@@ -1,12 +1,15 @@
-import {
-  PrismaClientInitializationError,
-  PrismaClientKnownRequestError,
-  PrismaClientRustPanicError,
-  PrismaClientUnknownRequestError,
-  PrismaClientValidationError,
-} from "@prisma/client/runtime/library";
+// import {
+//   PrismaClientInitializationError,
+//   PrismaClientKnownRequestError,
+//   PrismaClientRustPanicError,
+//   PrismaClientUnknownRequestError,
+//   PrismaClientValidationError,
+// } from "@prisma/client/runtime/library";
+import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
+
+const prisma = new PrismaClient();
 
 export const withErrorHandling = (
   handler: (request: NextRequest) => Promise<NextResponse>

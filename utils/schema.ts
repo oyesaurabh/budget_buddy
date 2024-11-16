@@ -10,3 +10,12 @@ export const signupSchema = z.object({
     .regex(/[0-9]/, { message: "Contain at least one number." })
     .trim(),
 });
+export const signinSchema = z.object({
+  email: z.string().email("Invalid email address").trim(),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .regex(/[a-zA-Z]/, { message: "Contain at least one letter." })
+    .regex(/[0-9]/, { message: "Contain at least one number." })
+    .trim(),
+});
