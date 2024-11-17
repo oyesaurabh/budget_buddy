@@ -117,7 +117,11 @@ export default function SignUp({ switchTab }: { switchTab: () => void }) {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={loading} className="text-white">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-500 text-white  dark:bg-blue-700"
+              >
                 {loading ? <Loader2 className="animate-spin" /> : "Create"}
               </Button>
             </form>

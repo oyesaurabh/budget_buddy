@@ -3,7 +3,7 @@ import { HeaderLogo } from "./header-logo";
 import Navigation from "./navigation";
 import WelcomeMessage from "./welcome-msg";
 import { DarkmodeToggle } from "./darkmode-toggle";
-import LogoutButton from "./logout-btn.tsx";
+import LogoutButton from "./logout-btn";
 
 export default function Header() {
   return (

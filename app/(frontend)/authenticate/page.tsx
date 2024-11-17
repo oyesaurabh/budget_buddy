@@ -28,7 +28,7 @@ const Page = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <div className="h-full bg-blue-600 hidden lg:flex items-center justify-center">
+      <div className="h-full bg-blue-500 hidden lg:flex items-center justify-center dark:bg-blue-700">
         <Image src="/logo.svg" height={100} width={100} alt="logo" />
       </div>
     </div>
