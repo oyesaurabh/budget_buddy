@@ -10,6 +10,10 @@ export const randomHash = async () => {
 // Function to hash a password using Web Crypto API
 export const hashPassword = async (salt: string, password: string) => {
   const encoder = new TextEncoder();
+  /*
+    salt makes the hash unique per user, and the SECRET provides an additional layer of security 
+    by ensuring that only the server can generate or verify the password hashes correctly
+    */
   const data = encoder.encode([salt, password].join("/"));
   const key = await crypto.subtle.importKey(
     "raw",
@@ -22,9 +26,4 @@ export const hashPassword = async (salt: string, password: string) => {
   return Array.from(new Uint8Array(signature))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-};
-
-// Function to check session using Prisma
-export const checkSession = async (sessionToken: string) => {
-  return true;
 };

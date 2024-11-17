@@ -6,7 +6,6 @@ export const customMiddleware = [
     middleware: authMiddlewareAPI,
   },
   {
-    // matcher: "^(?!/api/).*",
     matcher: "^/app",
     middleware: authMiddlewareFrontend,
   },

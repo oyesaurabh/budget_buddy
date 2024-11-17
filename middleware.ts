@@ -4,7 +4,6 @@ import { customMiddleware } from "./middlewareUtils/main";
 export async function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
-    if (pathname.includes("/authenticate")) return NextResponse.next();
 
     for (const { matcher, middleware } of customMiddleware) {
       if (pathname.match(new RegExp(matcher))) {
@@ -13,9 +12,9 @@ export async function middleware(request: NextRequest) {
     }
 
     return NextResponse.next();
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json(
-      { status: false, message: "Unauthorized" },
+      { status: false, message: error?.message || "Unauthorized" },
       { status: 401 }
     );
   }

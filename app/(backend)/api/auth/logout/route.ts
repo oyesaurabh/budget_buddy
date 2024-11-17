@@ -1,42 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { jwtVerify } from "jose";
+import { Redis } from "@upstash/redis";
+// Initialize Redis client
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
+
 import { withErrorHandling } from "@/utils";
-import jwt from "jsonwebtoken";
 
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "your_jwt_secret"
+);
 const logoutUser = async (request: NextRequest) => {
-  // Extract the JWT token from the request cookies
-  const jwtToken = request.cookies.get("sessionToken")?.value;
-
-  if (!jwtToken) {
-    return NextResponse.json(
-      { status: false, message: "No active session" },
-      { status: 400 }
-    );
-  }
-
   try {
     // Verify and decode the JWT to get the user ID and session token
-    const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
-    const decoded = jwt.verify(jwtToken, JWT_SECRET) as {
+    const jwtToken = request.cookies.get("sessionToken")?.value;
+    if (!jwtToken) {
+      return NextResponse.json(
+        { status: false, message: "No session found" },
+        { status: 401 }
+      );
+    }
+    const { payload } = await jwtVerify(jwtToken, JWT_SECRET, {
+      algorithms: ["HS256"],
+    });
+    const decoded = payload as {
       userId: string;
       sessionToken: string;
     };
 
-    // Remove the specific session token from the user's active sessions
-    await prisma.users.update({
-      where: { id: decoded.userId },
-      data: {
-        activeSessions: {
-          // Remove the current session token from active sessions
-          set: (
-            await prisma.users.findUnique({
-              where: { id: decoded.userId },
-              select: { activeSessions: true },
-            })
-          )?.activeSessions.filter((token) => token !== decoded.sessionToken),
-        },
-      },
-    });
+    // Remove the user session from redis
+    const userSessionKey = `user_session:${decoded.userId}`;
+    await redis.del(userSessionKey);
 
     // Create a response to clear the Authorization cookie
     const response = NextResponse.json(

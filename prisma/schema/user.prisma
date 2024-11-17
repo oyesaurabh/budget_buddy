@@ -1,9 +1,8 @@
 model Users {
-    id             String     @id @default(cuid())
-    name           String
-    email          String     @unique
-    password       String
-    salt           String
-    accounts       Accounts[]
-    activeSessions String[]
+    id       String     @id @default(cuid())
+    name     String
+    email    String     @unique
+    password String
+    salt     String
+    accounts Accounts[]
 }

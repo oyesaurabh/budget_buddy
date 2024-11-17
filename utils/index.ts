@@ -1,3 +1,3 @@
 export { signupSchema, signinSchema } from "./schema";
-export { hashPassword, randomHash, checkSession } from "./auth";
+export { checkSession } from "./session";
 export { withErrorHandling } from "./withErrorHandling";
