@@ -39,7 +39,6 @@ export const withErrorHandling = (
       //     { status: 500 }
       //   );
       // }
-
       if (error instanceof Error) {
         return NextResponse.json(
           { status: false, message: error.message },

@@ -1,5 +1,3 @@
-const SECRET = process.env.SALT_SECRET_KEY ?? "defaultvalue";
-
 // Function to generate a random hash using Web Crypto API
 export const randomHash = async () => {
   const array = new Uint8Array(128);
@@ -9,6 +7,8 @@ export const randomHash = async () => {
 
 // Function to hash a password using Web Crypto API
 export const hashPassword = async (salt: string, password: string) => {
+  const SECRET = process.env.SALT_SECRET_KEY ?? "defaultvalue";
+
   const encoder = new TextEncoder();
   /*
     salt makes the hash unique per user, and the SECRET provides an additional layer of security 

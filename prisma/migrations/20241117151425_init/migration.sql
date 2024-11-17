@@ -15,7 +15,6 @@ CREATE TABLE "Users" (
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "salt" TEXT NOT NULL,
-    "activeSessions" TEXT[],
 
     CONSTRAINT "Users_pkey" PRIMARY KEY ("id")
 );

@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
-import { Redis } from "@upstash/redis";
-// Initialize Redis client
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
 
+import { redisService, joseService } from "@/services";
 import { withErrorHandling } from "@/utils";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your_jwt_secret"
-);
 const logoutUser = async (request: NextRequest) => {
   try {
     // Verify and decode the JWT to get the user ID and session token
@@ -22,17 +13,11 @@ const logoutUser = async (request: NextRequest) => {
         { status: 401 }
       );
     }
-    const { payload } = await jwtVerify(jwtToken, JWT_SECRET, {
-      algorithms: ["HS256"],
-    });
-    const decoded = payload as {
-      userId: string;
-      sessionToken: string;
-    };
+    const { userId } = await joseService.verify(jwtToken);
 
     // Remove the user session from redis
-    const userSessionKey = `user_session:${decoded.userId}`;
-    await redis.del(userSessionKey);
+    const userSessionKey = `user_session:${userId}`;
+    await redisService.delete(userSessionKey);
 
     // Create a response to clear the Authorization cookie
     const response = NextResponse.json(

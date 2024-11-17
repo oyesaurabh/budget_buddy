@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { customMiddleware } from "./middlewareUtils/main";
+import { customMiddleware } from "@/services";
 
 export async function middleware(request: NextRequest) {
   try {
