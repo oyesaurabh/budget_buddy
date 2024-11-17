@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
-import { hashPassword, randomHash } from "@/utils/auth";
-import { withErrorHandling, signinSchema } from "@/utils";
+import {
+  withErrorHandling,
+  signinSchema,
+  hashPassword,
+  randomHash,
+} from "@/utils";
 import { redisService, joseService } from "@/services";
 
 export const loginUser = async (request: NextRequest) => {
@@ -33,7 +37,7 @@ export const loginUser = async (request: NextRequest) => {
 
   // Store the new session token for user
   const userSessionKey = `user_session:${user.id}`;
-  await redisService.set(userSessionKey, jwtToken, 60 * 60 * 24);
+  await redisService.set(userSessionKey, jwtToken, 60 * 60 * 24); // Expire in 1 day
 
   const response = NextResponse.json(
     { status: true, message: "Authorized" },

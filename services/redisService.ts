@@ -13,7 +13,7 @@ class RedisService {
     return this.redis.get(key);
   }
   async set(key: string, value: string, second: number) {
-    return await this.redis.set(key, value, { ex: second }); // Expire in 1 day
+    return await this.redis.set(key, value, { ex: second });
   }
   async delete(key: string) {
     return this.redis.del(key);
