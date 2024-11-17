@@ -21,18 +21,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-
-export default function SignUn() {
+import { signupSchema } from "@/utils";
+import axios from "axios";
+import { toast } from "sonner";
+interface loginResponse {
+  data: {
+    status: boolean;
+    message: string;
+  };
+}
+export default function SignUp({ switchTab }: { switchTab: () => void }) {
   const [loading, setLoading] = useState(false);
 
-  const formSchema = z.object({
-    name: z.string().min(3, "Name should have atleast 3 char"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof signupSchema>>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -40,14 +42,17 @@ export default function SignUn() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof signupSchema>) => {
     setLoading(true);
     try {
-      // Simulate form submission
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(values);
-      form.reset(); // Reset form after successful submission
-    } catch (error) {
+      const response: loginResponse = await axios.post("/api/signup", values);
+      const { status, message } = response.data ?? {};
+      if (!status) throw new Error(message);
+
+      toast.success(message || "User Created");
+      switchTab(); // Remove the "signin" parameter
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "something went wrong");
       console.error(error);
     } finally {
       setLoading(false);
@@ -112,12 +117,8 @@ export default function SignUn() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={loading}>
-                {loading ? (
-                  <Loader2 className="size-8 animate-spin text-slate-400" />
-                ) : (
-                  "Create"
-                )}
+              <Button type="submit" disabled={loading} className="text-white">
+                {loading ? <Loader2 className="animate-spin" /> : "Create"}
               </Button>
             </form>
           </Form>

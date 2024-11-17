@@ -1,18 +1,28 @@
 import { NextResponse, NextRequest } from "next/server";
-import { middleware as customMiddleware } from "./middleware/index";
+import { customMiddleware } from "@/services";
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  try {
+    const { pathname } = request.nextUrl;
 
-  for (const { matcher, middleware } of customMiddleware) {
-    if (pathname.match(new RegExp(matcher))) {
-      return await middleware(request);
+    for (const { matcher, middleware } of customMiddleware) {
+      if (pathname.match(new RegExp(matcher))) {
+        return await middleware(request);
+      }
     }
+
+    return NextResponse.next();
+  } catch (error: any) {
+    return NextResponse.json(
+      { status: false, message: error?.message || "Unauthorized" },
+      { status: 401 }
+    );
   }
-
-  return NextResponse.next();
 }
-
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: [
+    "/api/:path*",
+    "/app/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|logo.svg|.*\\.(?:js|css|png|jpg|jpeg|gif|webp|svg|ico|woff|woff2|ttf|eot)).*)",
+  ],
 };

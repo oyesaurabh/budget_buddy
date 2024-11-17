@@ -16,12 +16,20 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
+import axios from "axios";
 
+interface loginResponse {
+  data: {
+    status: boolean;
+    message: string;
+  };
+}
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
 
@@ -41,11 +49,14 @@ export default function SignIn() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
     try {
-      // Simulate form submission
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(values);
-      form.reset(); // Reset form after successful submission
-    } catch (error) {
+      const response: loginResponse = await axios.post("/api/login", values);
+      const { status, message } = response.data ?? {};
+      if (!status) throw new Error(message);
+
+      toast.success(message || "Login Successful");
+      window.location.href = "/app";
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "something went wrong");
       console.error(error);
     } finally {
       setLoading(false);
@@ -95,12 +106,8 @@ export default function SignIn() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={loading}>
-              {loading ? (
-                <Loader2 className="size-8 animate-spin text-slate-400" />
-              ) : (
-                "Login"
-              )}
+            <Button type="submit" disabled={loading} className="text-white">
+              {loading ? <Loader2 className="animate-spin" /> : "Login"}
             </Button>
           </form>
         </Form>

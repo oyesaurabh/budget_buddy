@@ -21,7 +21,7 @@ export function DarkmodeToggle() {
         <Button
           variant="outline"
           size="icon"
-          className="w-8 h-[2rem] justify-center font-medium text-white border-none bg-white/10 hover:text-white hover:bg-white/20"
+          className="justify-center font-medium text-white border-none bg-white/10 hover:text-white hover:bg-white/20"
         >
           {darkTheme ? <Moon className="" /> : <Sun className="" />}
         </Button>
