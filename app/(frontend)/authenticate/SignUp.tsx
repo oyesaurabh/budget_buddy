@@ -22,14 +22,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { signupSchema } from "@/utils";
-import axios from "axios";
+import { axiosService } from "@/services";
 import { toast } from "sonner";
-interface loginResponse {
-  data: {
-    status: boolean;
-    message: string;
-  };
-}
+
 export default function SignUp({ switchTab }: { switchTab: () => void }) {
   const [loading, setLoading] = useState(false);
 
@@ -45,14 +40,14 @@ export default function SignUp({ switchTab }: { switchTab: () => void }) {
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
     setLoading(true);
     try {
-      const response: loginResponse = await axios.post("/api/signup", values);
-      const { status, message } = response.data ?? {};
+      const response = await axiosService.signup(values);
+      const { status, message } = response ?? {};
       if (!status) throw new Error(message);
 
       toast.success(message || "User Created");
-      switchTab(); // Remove the "signin" parameter
+      switchTab();
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "something went wrong");
+      toast.error(error?.message || "Something went wrong");
       console.error(error);
     } finally {
       setLoading(false);

@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -22,15 +23,10 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
-import axios from "axios";
+import { axiosService } from "@/services";
 
-interface loginResponse {
-  data: {
-    status: boolean;
-    message: string;
-  };
-}
 export default function SignIn() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const formSchema = z.object({
@@ -49,14 +45,14 @@ export default function SignIn() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
     try {
-      const response: loginResponse = await axios.post("/api/login", values);
-      const { status, message } = response.data ?? {};
+      const response = await axiosService.signin(values);
+      const { status, message } = response ?? {};
       if (!status) throw new Error(message);
 
       toast.success(message || "Login Successful");
-      window.location.href = "/app";
+      router.push("/");
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "something went wrong");
+      toast.error(error?.message || "Something went wrong");
       console.error(error);
     } finally {
       setLoading(false);
