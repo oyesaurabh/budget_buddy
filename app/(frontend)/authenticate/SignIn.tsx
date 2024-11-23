@@ -46,8 +46,12 @@ export default function SignIn() {
     setLoading(true);
     try {
       const response = await axiosService.signin(values);
-      const { status, message } = response ?? {};
+      const { status, message, data } = response ?? {};
       if (!status) throw new Error(message);
+
+      const { name, email } = data;
+      localStorage.setItem("username", name);
+      localStorage.setItem("useremail", email);
 
       toast.success(message || "Login Successful");
       router.push("/");

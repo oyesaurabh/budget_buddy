@@ -42,7 +42,11 @@ export const loginUser = async (request: NextRequest) => {
   await redisService.set(userSessionKey, jwtToken, 60 * 60 * 24); // Expire in 1 day
 
   const response = NextResponse.json(
-    { status: true, message: "Authorized" },
+    {
+      status: true,
+      message: "Authorized",
+      data: { name: user.name, email: user.email },
+    },
     { status: 200 }
   );
 
