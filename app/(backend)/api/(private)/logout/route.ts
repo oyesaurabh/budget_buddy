@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { redisService, joseService } from "@/services";
+import { redisService } from "@/services";
 import { withErrorHandling } from "@/utils";
 
 const logoutUser = async (request: NextRequest) => {
   try {
-    // Verify and decode the JWT to get the user ID and session token
-    const jwtToken = request.cookies.get("sessionToken")?.value;
-    if (!jwtToken) {
-      return NextResponse.json(
-        { status: false, message: "No session found" },
-        { status: 401 }
-      );
+    const sessionHeader = request.headers.get("x-user-session");
+    if (!sessionHeader) {
+      throw new Error("Invalid session");
     }
-    const { userId } = await joseService.verify(jwtToken);
+
+    const { userId } = JSON.parse(sessionHeader);
 
     // Remove the user session from redis
     const userSessionKey = `user_session:${userId}`;

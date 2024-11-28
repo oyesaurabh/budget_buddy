@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,23 +10,30 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { axiosService } from "@/services";
+
 export default function LogoutButton() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
   const handleLogout = async () => {
+    setLoading(true);
     try {
-      const response = await axios.post("/api/auth/logout");
-      const { message } = response.data ?? {};
+      const response = await axiosService.logout();
+      const { status, message } = response ?? {};
+      if (!status) throw new Error(message);
+
       toast.success(message || "Logout Successful");
-      setTimeout(() => {
-        window.location.href = "/authenticate";
-      }, 2000);
+      router.push("/authenticate");
     } catch (error: any) {
-      const message = error?.response?.data?.message || "Something went wrong";
-      toast.error(message);
+      toast.error(error?.message || "Something went wrong");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -49,7 +58,13 @@ export default function LogoutButton() {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction>
-            <p onClick={() => handleLogout()}>Logout</p>
+            <Button
+              onClick={() => handleLogout()}
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? <Loader2 className="animate-spin" /> : "Logout"}
+            </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

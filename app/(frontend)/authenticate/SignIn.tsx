@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -22,41 +23,36 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
-import axios from "axios";
+import { axiosService } from "@/services";
+import { signinSchema } from "@/utils";
 
-interface loginResponse {
-  data: {
-    status: boolean;
-    message: string;
-  };
-}
 export default function SignIn() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const formSchema = z.object({
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof signinSchema>>({
+    resolver: zodResolver(signinSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof signinSchema>) => {
     setLoading(true);
     try {
-      const response: loginResponse = await axios.post("/api/login", values);
-      const { status, message } = response.data ?? {};
+      const response = await axiosService.signin(values);
+      const { status, message, data } = response ?? {};
       if (!status) throw new Error(message);
 
+      const { name, email } = data;
+      localStorage.setItem("username", name);
+      localStorage.setItem("useremail", email);
+
       toast.success(message || "Login Successful");
-      window.location.href = "/app";
+      router.push("/");
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "something went wrong");
+      toast.error(error?.message || "Something went wrong");
       console.error(error);
     } finally {
       setLoading(false);
@@ -106,7 +102,11 @@ export default function SignIn() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={loading} className="text-white">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-500 text-white  dark:bg-blue-700"
+            >
               {loading ? <Loader2 className="animate-spin" /> : "Login"}
             </Button>
           </form>
