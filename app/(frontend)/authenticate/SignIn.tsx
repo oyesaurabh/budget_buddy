@@ -24,25 +24,21 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { axiosService } from "@/services";
+import { signinSchema } from "@/utils";
 
 export default function SignIn() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const formSchema = z.object({
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof signinSchema>>({
+    resolver: zodResolver(signinSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof signinSchema>) => {
     setLoading(true);
     try {
       const response = await axiosService.signin(values);

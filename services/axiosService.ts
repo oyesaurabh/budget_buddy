@@ -46,6 +46,17 @@ class AxiosService {
       throw new Error(`Error during signin: ${error.message}`);
     }
   }
+  async createNewAccount(payload: any): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.api.post(
+        "/api/accounts",
+        payload
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Error during creating new account: ${error.message}`);
+    }
+  }
 }
 const axiosService = new AxiosService(api);
 export default axiosService;

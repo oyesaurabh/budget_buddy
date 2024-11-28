@@ -19,3 +19,6 @@ export const signinSchema = z.object({
     .regex(/[0-9]/, { message: "Contain at least one number." })
     .trim(),
 });
+export const accountSchema = z.object({
+  name: z.string().min(3, "Account Name should have atleast 3 char").trim(),
+});
