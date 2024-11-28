@@ -57,6 +57,14 @@ class AxiosService {
       throw new Error(`Error during creating new account: ${error.message}`);
     }
   }
+  async getAccounts(): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.api.get("/api/accounts");
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Error during creating new account: ${error.message}`);
+    }
+  }
 }
 const axiosService = new AxiosService(api);
 export default axiosService;

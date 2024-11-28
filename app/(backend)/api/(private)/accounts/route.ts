@@ -13,7 +13,7 @@ async function getAccounts(request: NextRequest) {
   // //getting all the accounts data of user.
   const data = await prisma.accounts.findMany({
     where: { userId },
-    select: { name: true },
+    select: { name: true, id: true },
   });
 
   return NextResponse.json({
