@@ -89,16 +89,18 @@ export default function Navigation() {
     <nav className="hidden lg:flex items-center gap-x-2 overflow-x-auto">
       {routes.map((route, index) => {
         return (
-          <Button
-            key={index}
-            variant="ghost"
-            className={cn(
-              "w-full lg:w-auto justify-between font-medium text-white border-none hover:bg-white/10 hover:text-white",
-              pathname == route.href ? "bg-white/40" : "bg-transparent"
-            )}
-          >
-            <Link href={route.href}>{route.label}</Link>
-          </Button>
+          <Link href={route.href}>
+            <Button
+              key={index}
+              variant="ghost"
+              className={cn(
+                "w-full lg:w-auto justify-between font-medium text-white border-none hover:bg-white/10 hover:text-white",
+                pathname == route.href ? "bg-white/40" : "bg-transparent"
+              )}
+            >
+              {route.label}
+            </Button>
+          </Link>
         );
       })}
     </nav>
