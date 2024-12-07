@@ -39,12 +39,6 @@ export const withErrorHandling = (
       //     { status: 500 }
       //   );
       // }
-      if (error instanceof Error) {
-        return NextResponse.json(
-          { status: false, message: error.message },
-          { status: 400 }
-        );
-      }
 
       return NextResponse.json(
         { status: false, message: "Internal server error" },

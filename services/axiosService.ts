@@ -65,6 +65,17 @@ class AxiosService {
       throw new Error(`Error during creating new account: ${error.message}`);
     }
   }
+  async deleteAccounts(payload: string[]): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.api.post(
+        "/api/accounts/bulk-delete",
+        payload
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Error during creating new account: ${error.message}`);
+    }
+  }
 }
 const axiosService = new AxiosService(api);
 export default axiosService;

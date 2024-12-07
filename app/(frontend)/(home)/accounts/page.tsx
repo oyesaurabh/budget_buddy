@@ -5,57 +5,50 @@ import { useNewAccount } from "@/hooks/useNewAccount";
 import { Loader2, PlusIcon } from "lucide-react";
 import { columns } from "./columns";
 import { DataTable } from "@/components/data-table";
-import { useEffect, useState } from "react";
-import { axiosService } from "@/services";
-import { toast } from "sonner";
+import { useAccountStore } from "@/hooks/useAccountsHook";
 
 const AccountPage = () => {
-  const { isOpen, onOpen } = useNewAccount();
-  const [accountData, setAccountData] = useState([]);
-  useEffect(() => {
-    try {
-      fetchAccounts();
-    } catch (error: any) {
-      toast.error("Something went wrong");
-      console.error(error.message ?? "Something went wrong");
-    }
-  }, [isOpen]); //TODO, calls fetchAccounts each time we open or close accounts tab
+  const { onOpen } = useNewAccount();
+  const { accounts, isLoading, deleteAccounts } = useAccountStore();
 
-  const fetchAccounts = async () => {
-    const { status, data, message } = await axiosService.getAccounts();
-    if (!status) throw new Error(message ?? "Something went wrong");
-    setAccountData(data);
+  const handleDelete = async (row: any) => {
+    const ids = row.map((r: any) => r?.original?.id);
+    await deleteAccounts(ids);
   };
 
-  if (!accountData?.length) {
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="h-[400px] w-full flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      );
+    }
+
     return (
-      <div className="max-w-screen-2xl mx-auto -mt-24">
-        <Card className="border-none">
-          <CardHeader className="gap-y-2 md:flex-row md:items-center md:justify-between"></CardHeader>
-          <CardContent>
-            <div className="h-[400px] w-full flex items-center justify-center">
-              <Loader2 className="animate-spin" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <DataTable
+        columns={columns}
+        data={accounts}
+        filterKey="name"
+        onDelete={handleDelete}
+      />
     );
-  }
+  };
+
   return (
     <div className="max-w-screen-2xl mx-auto -mt-24">
       <Card className="border-none">
         <CardHeader className="gap-y-2 md:flex-row md:items-center md:justify-between">
           <CardTitle>Accounts Page</CardTitle>
-          <Button className="sm" onClick={onOpen}>
-            <PlusIcon />
+          <Button onClick={onOpen}>
+            <PlusIcon className="mr-2 h-4 w-4" />
             Add New
           </Button>
         </CardHeader>
-        <CardContent>
-          <DataTable columns={columns} data={accountData} filterKey="name" />
-        </CardContent>
+        <CardContent>{renderContent()}</CardContent>
       </Card>
     </div>
   );
 };
+
 export default AccountPage;

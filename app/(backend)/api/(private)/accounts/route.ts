@@ -34,7 +34,7 @@ const createAccount = async (request: NextRequest) => {
   const { userId } = JSON.parse(sessionHeader);
 
   //now simply save data into db
-  await prisma.accounts.create({
+  const res = await prisma.accounts.create({
     data: {
       name,
       userId,
@@ -42,7 +42,11 @@ const createAccount = async (request: NextRequest) => {
   });
 
   return NextResponse.json(
-    { status: true, message: "Account Created Successfully" },
+    {
+      status: true,
+      message: "Account Created Successfully",
+      data: { id: res.id, name: res.name },
+    },
     { status: 200 }
   );
 };
