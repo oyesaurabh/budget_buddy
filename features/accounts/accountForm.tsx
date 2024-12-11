@@ -16,7 +16,7 @@ import { accountSchema } from "@/utils/schema";
 import { z } from "zod";
 
 type Props = {
-  id?: string;
+  id?: string | any;
   defaultValues?: z.input<typeof accountSchema>;
   onSubmit: (values: z.input<typeof accountSchema>) => void;
   onDelete?: () => void;
@@ -62,7 +62,7 @@ export default function AccountForm({
         <Button type="submit" disabled={disabled} className="w-full">
           {disabled ? (
             <Loader2 className="animate-spin" />
-          ) : id ? (
+          ) : id != "" ? (
             "Save Changes"
           ) : (
             "Create Account"

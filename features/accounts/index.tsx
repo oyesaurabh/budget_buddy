@@ -1,5 +1,6 @@
 "use client";
 import { useNewAccount } from "@/hooks/useNewAccount";
+import { z } from "zod";
 import {
   Sheet,
   SheetContent,
@@ -9,16 +10,15 @@ import {
 } from "@/components/ui/sheet";
 import AccountForm from "./accountForm";
 import { accountSchema } from "@/utils/schema";
-import { z } from "zod";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useAccountStore } from "@/hooks/useAccountsHook";
 type formValues = z.input<typeof accountSchema>;
 
 const NewAccountSheet = () => {
-  const { isOpen, onClose } = useNewAccount();
+  const { isOpen, onClose, values } = useNewAccount();
   const [isDisabled, setIsDisabled] = useState(false);
-  const { createAccount } = useAccountStore();
+  const { createAccount, deleteAccounts } = useAccountStore();
 
   const onSubmit = async (values: formValues) => {
     setIsDisabled(true);
@@ -35,10 +35,11 @@ const NewAccountSheet = () => {
     }
   };
 
-  const onDelete = () => {
+  const onDelete = async () => {
     setIsDisabled(true);
     try {
-      // Add delete logic
+      const success = await deleteAccounts([values.id]);
+      if (success) onClose();
     } catch (error: any) {
       toast.error(error?.message ?? "Something went wrong");
       console.error(error);
@@ -57,10 +58,11 @@ const NewAccountSheet = () => {
           </SheetDescription>
         </SheetHeader>
         <AccountForm
+          id={values?.id ?? ""}
           onSubmit={onSubmit}
           onDelete={onDelete}
           disabled={isDisabled}
-          defaultValues={{ name: "" }}
+          defaultValues={{ name: values.name ?? "" }}
         />
       </SheetContent>
     </Sheet>

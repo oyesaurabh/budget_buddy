@@ -1,10 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Settings2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+
+import { useNewAccount } from "@/hooks/useNewAccount";
 
 export type responseType = {
   id: string;
@@ -44,6 +46,24 @@ export const columns: ColumnDef<responseType>[] = [
         >
           Account Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
+  {
+    id: "action",
+    cell: ({ row }) => {
+      const { setValues, onOpen } = useNewAccount();
+      return (
+        <Button
+          variant="ghost"
+          key={row.original.id}
+          onClick={() => {
+            setValues(row.original);
+            onOpen();
+          }}
+        >
+          <Settings2 />
         </Button>
       );
     },

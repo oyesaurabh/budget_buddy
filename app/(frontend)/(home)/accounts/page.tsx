@@ -8,7 +8,7 @@ import { DataTable } from "@/components/data-table";
 import { useAccountStore } from "@/hooks/useAccountsHook";
 
 const AccountPage = () => {
-  const { onOpen } = useNewAccount();
+  const { onOpen, setValues } = useNewAccount();
   const { accounts, isLoading, deleteAccounts } = useAccountStore();
 
   const handleDelete = async (row: any) => {
@@ -40,7 +40,12 @@ const AccountPage = () => {
       <Card className="border-none">
         <CardHeader className="gap-y-2 md:flex-row md:items-center md:justify-between">
           <CardTitle>Accounts Page</CardTitle>
-          <Button onClick={onOpen}>
+          <Button
+            onClick={() => {
+              onOpen();
+              setValues("");
+            }}
+          >
             <PlusIcon className="mr-2 h-4 w-4" />
             Add New
           </Button>
