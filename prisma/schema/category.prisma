@@ -1,0 +1,7 @@
+model Category {
+    id      String  @id @default(cuid())
+    name    String
+    userId  String
+    user    Users   @relation(fields: [userId], references: [id])
+    plaidId String?
+}

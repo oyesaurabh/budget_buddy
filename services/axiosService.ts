@@ -62,7 +62,7 @@ class AxiosService {
       const response: AxiosResponse<any> = await this.api.get("/api/accounts");
       return response.data;
     } catch (error: any) {
-      throw new Error(`Error during creating new account: ${error.message}`);
+      throw new Error(`Error during fetching accounts: ${error.message}`);
     }
   }
   async deleteAccounts(payload: string[]): Promise<any> {
@@ -73,7 +73,7 @@ class AxiosService {
       );
       return response.data;
     } catch (error: any) {
-      throw new Error(`Error during creating new account: ${error.message}`);
+      throw new Error(`Error during bulk delete accounts: ${error.message}`);
     }
   }
   async editAccount(payload: any): Promise<any> {
@@ -84,7 +84,48 @@ class AxiosService {
       );
       return response.data;
     } catch (error: any) {
-      throw new Error(`Error during creating new account: ${error.message}`);
+      throw new Error(`Error during editing account: ${error.message}`);
+    }
+  }
+  async createNewCategory(payload: any): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.api.post(
+        "/api/category",
+        payload
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Error during creating new category: ${error.message}`);
+    }
+  }
+  async getCategories(): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.api.get("/api/category");
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Error during fetching categories: ${error.message}`);
+    }
+  }
+  async deleteCategories(payload: string[]): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.api.post(
+        "/api/category/bulk-delete",
+        payload
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Error during category bulk delete: ${error.message}`);
+    }
+  }
+  async editCategory(payload: any): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await this.api.patch(
+        "/api/category",
+        payload
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Error during editing category: ${error.message}`);
     }
   }
 }

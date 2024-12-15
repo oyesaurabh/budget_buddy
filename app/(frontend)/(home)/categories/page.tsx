@@ -5,15 +5,15 @@ import { Loader2, PlusIcon } from "lucide-react";
 import { columns } from "./columns";
 import { DataTable } from "@/components/data-table";
 
-import { useNewAccount, useAccountStore } from "@/hooks/useAccountsHook";
+import { useCategoryStore, useNewCategory } from "@/hooks/useCategoryHook";
 
 const AccountPage = () => {
-  const { onOpen, setValues } = useNewAccount();
-  const { accounts, isLoading, deleteAccounts } = useAccountStore();
+  const { onOpen, setValues } = useNewCategory();
+  const { Categories, isLoading, deleteCategories } = useCategoryStore();
 
   const handleDelete = async (row: any) => {
     const ids = row.map((r: any) => r?.original?.id);
-    await deleteAccounts(ids);
+    await deleteCategories(ids);
   };
 
   const renderContent = () => {
@@ -28,7 +28,7 @@ const AccountPage = () => {
     return (
       <DataTable
         columns={columns}
-        data={accounts}
+        data={Categories}
         filterKey="name"
         onDelete={handleDelete}
       />
@@ -39,7 +39,7 @@ const AccountPage = () => {
     <div className="max-w-screen-2xl mx-auto -mt-24">
       <Card className="border-none">
         <CardHeader className="gap-y-2 md:flex-row md:items-center md:justify-between">
-          <CardTitle>Accounts Page</CardTitle>
+          <CardTitle>Category Page</CardTitle>
           <Button
             onClick={() => {
               onOpen();

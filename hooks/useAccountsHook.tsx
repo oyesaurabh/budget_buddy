@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { axiosService } from "@/services";
 import { toast } from "sonner";
 
+//all the data related to accounts
 interface Account {
   id: string;
   name: string;
@@ -9,7 +10,6 @@ interface Account {
 interface CreateAccountValues {
   name: string;
 }
-
 interface AccountStore {
   accounts: Account[];
   isLoading: boolean;
@@ -19,8 +19,7 @@ interface AccountStore {
   createAccount: (values: CreateAccountValues) => Promise<boolean>;
   editAccount: (values: Account) => Promise<boolean>;
 }
-
-export const useAccountStore = create<AccountStore>((set, get) => ({
+export const useAccountStore = create<AccountStore>((set) => ({
   accounts: [],
   isLoading: true,
   error: null,
@@ -120,5 +119,20 @@ export const useAccountStore = create<AccountStore>((set, get) => ({
     }
   },
 }));
-
 useAccountStore.getState().fetchAccounts();
+
+//this is our account sidebar slide option
+type NewAccountState = {
+  isOpen: boolean;
+  values: any;
+  onOpen: () => void;
+  onClose: () => void;
+  setValues: (data: any) => void;
+};
+export const useNewAccount = create<NewAccountState>((set) => ({
+  isOpen: false,
+  values: {},
+  onOpen: () => set({ isOpen: true }),
+  onClose: () => set({ isOpen: false }),
+  setValues: (data: any) => set({ values: data }),
+}));
