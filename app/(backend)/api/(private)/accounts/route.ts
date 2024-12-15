@@ -50,6 +50,24 @@ const createAccount = async (request: NextRequest) => {
     { status: 200 }
   );
 };
+const editAccount = async (request: NextRequest) => {
+  const { name, id } = await request.json();
+  if (!!name == false || !!id == false)
+    return NextResponse.json({
+      status: false,
+      message: "Invalid Body Params",
+    });
 
+  //updating
+  await prisma.accounts.update({
+    where: { id },
+    data: { name },
+  });
+  return NextResponse.json({
+    status: true,
+    message: "successfully updated",
+  });
+};
 export const GET = withErrorHandling(getAccounts);
 export const POST = withErrorHandling(createAccount);
+export const PATCH = withErrorHandling(editAccount);

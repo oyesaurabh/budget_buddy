@@ -6,7 +6,6 @@ interface Account {
   id: string;
   name: string;
 }
-
 interface CreateAccountValues {
   name: string;
 }
@@ -18,6 +17,7 @@ interface AccountStore {
   fetchAccounts: () => Promise<void>;
   deleteAccounts: (ids: string[]) => Promise<boolean>;
   createAccount: (values: CreateAccountValues) => Promise<boolean>;
+  editAccount: (values: Account) => Promise<boolean>;
 }
 
 export const useAccountStore = create<AccountStore>((set, get) => ({
@@ -87,6 +87,30 @@ export const useAccountStore = create<AccountStore>((set, get) => ({
       }));
 
       toast.success(message ?? "Account Created");
+      return true;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Error while creating account";
+      toast.error(errorMessage);
+      return false;
+    }
+  },
+
+  editAccount: async (values: Account) => {
+    try {
+      const response = await axiosService.editAccount(values);
+      const { status, message } = response ?? {};
+      if (!status) {
+        toast.error(message ?? "Failed to Update");
+        return false;
+      }
+
+      set((state) => ({
+        accounts: state.accounts.map((item) =>
+          item.id == values.id ? { ...item, name: values.name } : item
+        ),
+      }));
+      toast.success(message ?? "Account Updated");
       return true;
     } catch (err) {
       const errorMessage =

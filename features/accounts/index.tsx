@@ -18,12 +18,14 @@ type formValues = z.input<typeof accountSchema>;
 const NewAccountSheet = () => {
   const { isOpen, onClose, values } = useNewAccount();
   const [isDisabled, setIsDisabled] = useState(false);
-  const { createAccount, deleteAccounts } = useAccountStore();
+  const { createAccount, deleteAccounts, editAccount } = useAccountStore();
 
-  const onSubmit = async (values: formValues) => {
+  const onSubmit = async (v: formValues) => {
     setIsDisabled(true);
     try {
-      const success = await createAccount(values);
+      let success = false;
+      if (!!values) success = await editAccount({ ...values, name: v.name });
+      else success = await createAccount(v);
       if (success) {
         onClose();
       }
