@@ -1,7 +1,8 @@
-model Category {
-    id      String  @id @default(cuid())
-    name    String
-    userId  String
-    user    Users   @relation(fields: [userId], references: [id])
-    plaidId String?
+model categories {
+    id          String         @id @default(cuid())
+    name        String
+    user_id     String
+    plaid_id    String?
+    user        users          @relation(fields: [user_id], references: [id])
+    transaction transactions[]
 }

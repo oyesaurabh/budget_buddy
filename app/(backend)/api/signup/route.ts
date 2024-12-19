@@ -13,25 +13,34 @@ const createUser = async (request: NextRequest) => {
   const { email, password, name } = signupSchema.parse(body);
 
   //checking if user already exists
-  const userExist = await prisma.users.findFirst({
-    where: {
-      email: { equals: email },
-    },
-  });
-  if (userExist) throw new Error("User Already Exist");
+  let userExist;
+  try {
+    userExist = await prisma.users.findFirst({
+      where: {
+        email: { equals: email },
+      },
+    });
+    if (userExist) throw new Error("User Already Exist");
+  } catch (error) {
+    throw new Error("Error while fetching user");
+  }
 
   //creating new user
   const salt = await randomHash();
   const hashedPassword = await hashPassword(salt, password);
 
-  await prisma.users.create({
-    data: {
-      name,
-      email,
-      salt,
-      password: hashedPassword,
-    },
-  });
+  try {
+    await prisma.users.create({
+      data: {
+        name,
+        email,
+        salt,
+        password: hashedPassword,
+      },
+    });
+  } catch (error) {
+    throw new Error("Error while creating user");
+  }
 
   return NextResponse.json(
     { status: true, message: "Successfully Created" },

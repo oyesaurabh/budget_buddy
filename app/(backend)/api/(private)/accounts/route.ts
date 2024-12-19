@@ -10,11 +10,16 @@ async function getAccounts(request: NextRequest) {
   }
   const { userId } = JSON.parse(sessionHeader);
 
-  // //getting all the accounts data of user.
-  const data = await prisma.accounts.findMany({
-    where: { userId },
-    select: { name: true, id: true },
-  });
+  // getting all the accounts data of user.
+  let data;
+  try {
+    data = await prisma.accounts.findMany({
+      where: { user_id: userId },
+      select: { name: true, id: true },
+    });
+  } catch (err) {
+    throw new Error("Error while fetching accounts");
+  }
 
   return NextResponse.json({
     status: true,
@@ -34,12 +39,17 @@ const createAccount = async (request: NextRequest) => {
   const { userId } = JSON.parse(sessionHeader);
 
   //now simply save data into db
-  const res = await prisma.accounts.create({
-    data: {
-      name,
-      userId,
-    },
-  });
+  let res;
+  try {
+    res = await prisma.accounts.create({
+      data: {
+        name,
+        user_id: userId,
+      },
+    });
+  } catch (error) {
+    throw new Error("Error while creating account");
+  }
 
   return NextResponse.json(
     {
@@ -59,10 +69,15 @@ const editAccount = async (request: NextRequest) => {
     });
 
   //updating
-  await prisma.accounts.update({
-    where: { id },
-    data: { name },
-  });
+  try {
+    await prisma.accounts.update({
+      where: { id },
+      data: { name },
+    });
+  } catch (err) {
+    throw new Error("Error while updating account");
+  }
+
   return NextResponse.json({
     status: true,
     message: "successfully updated",

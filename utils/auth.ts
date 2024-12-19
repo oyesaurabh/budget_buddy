@@ -1,3 +1,5 @@
+import prisma from "@/lib/db";
+
 // Function to generate a random hash using Web Crypto API
 export const randomHash = async () => {
   const array = new Uint8Array(128);
@@ -26,4 +28,28 @@ export const hashPassword = async (salt: string, password: string) => {
   return Array.from(new Uint8Array(signature))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+};
+export const validateAccountOwnership = async (
+  userId: string,
+  accountId: string
+) => {
+  try {
+    let account;
+    try {
+      account = await prisma.accounts.findUnique({
+        where: {
+          id: accountId,
+          user_id: userId,
+        },
+        select: { id: true },
+      });
+    } catch (error) {
+      return false;
+    }
+
+    return !!account;
+  } catch (error) {
+    console.error("Account ownership validation error:", error);
+    return false;
+  }
 };

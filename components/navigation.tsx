@@ -24,10 +24,6 @@ const routes = [
     label: "Transactions",
   },
   {
-    href: "/transactions",
-    label: "Transactions",
-  },
-  {
     href: "/accounts",
     label: "Accounts",
   },

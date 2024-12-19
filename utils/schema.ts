@@ -25,3 +25,6 @@ export const accountSchema = z.object({
 export const categorySchema = z.object({
   name: z.string().min(3, "Category Name should have atleast 3 char").trim(),
 });
+export const transactionSchema = z.object({
+  name: z.string().min(3, "Transaction Name should have atleast 3 char").trim(),
+});

@@ -13,10 +13,15 @@ export const loginUser = async (request: NextRequest) => {
   const body = await request.json();
   const { email, password } = signinSchema.parse(body);
 
-  const user = await prisma.users.findFirst({
-    where: { email },
-  });
-  if (!user) throw new Error("No User Found");
+  let user;
+  try {
+    user = await prisma.users.findFirst({
+      where: { email },
+    });
+    if (!user) throw new Error("No User Found");
+  } catch (error) {
+    throw new Error("Error while fetching user");
+  }
 
   // Verify the password
   const hashedPassword = await hashPassword(user.salt, password);

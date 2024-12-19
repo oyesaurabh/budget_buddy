@@ -12,13 +12,18 @@ const bulkDelete = async (request: NextRequest) => {
   }
 
   //lets delete from db
-  const deleteResponse = await prisma.category.deleteMany({
-    where: {
-      id: {
-        in: ids,
+  let deleteResponse;
+  try {
+    deleteResponse = await prisma.categories.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    throw new Error("Error while deleting categories");
+  }
 
   return NextResponse.json(
     {

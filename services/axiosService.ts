@@ -7,6 +7,20 @@ const api: AxiosInstance = axios.create({
   },
 });
 
+// Generic error handler wrapper
+const handleApiCall = async <T>(
+  apiCall: () => Promise<AxiosResponse<T>>
+): Promise<T> => {
+  try {
+    const response = await apiCall();
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || error.message || "Something went wrong";
+    throw new Error(errorMessage);
+  }
+};
+
 class AxiosService {
   private api: AxiosInstance;
 
@@ -14,120 +28,68 @@ class AxiosService {
     this.api = api;
   }
 
-  async signup(payload: any): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.post(
-        "/api/signup",
-        payload
-      );
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error?.response?.data?.message || "something went wrong");
-    }
+  signup(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.post("/api/signup", payload));
   }
 
-  async signin(payload: any): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.post(
-        "/api/login",
-        payload
-      );
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error?.response?.data?.message || "something went wrong");
-    }
+  signin(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.post("/api/login", payload));
   }
 
-  async logout(): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.post("/api/logout");
-      return response.data;
-    } catch (error: any) {
-      throw new Error(`Error during signin: ${error.message}`);
-    }
+  logout(): Promise<any> {
+    return handleApiCall(() => this.api.post("/api/logout"));
   }
-  async createNewAccount(payload: any): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.post(
-        "/api/accounts",
-        payload
-      );
-      return response.data;
-    } catch (error: any) {
-      throw new Error(`Error during creating new account: ${error.message}`);
-    }
+
+  createNewAccount(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.post("/api/accounts", payload));
   }
-  async getAccounts(): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.get("/api/accounts");
-      return response.data;
-    } catch (error: any) {
-      throw new Error(`Error during fetching accounts: ${error.message}`);
-    }
+
+  getAccounts(): Promise<any> {
+    return handleApiCall(() => this.api.get("/api/accounts"));
   }
-  async deleteAccounts(payload: string[]): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.post(
-        "/api/accounts/bulk-delete",
-        payload
-      );
-      return response.data;
-    } catch (error: any) {
-      throw new Error(`Error during bulk delete accounts: ${error.message}`);
-    }
+
+  deleteAccounts(payload: string[]): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/accounts/bulk-delete", payload)
+    );
   }
-  async editAccount(payload: any): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.patch(
-        "/api/accounts",
-        payload
-      );
-      return response.data;
-    } catch (error: any) {
-      throw new Error(`Error during editing account: ${error.message}`);
-    }
+
+  editAccount(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.patch("/api/accounts", payload));
   }
-  async createNewCategory(payload: any): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.post(
-        "/api/category",
-        payload
-      );
-      return response.data;
-    } catch (error: any) {
-      throw new Error(`Error during creating new category: ${error.message}`);
-    }
+
+  createNewCategory(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.post("/api/category", payload));
   }
-  async getCategories(): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.get("/api/category");
-      return response.data;
-    } catch (error: any) {
-      throw new Error(`Error during fetching categories: ${error.message}`);
-    }
+
+  getCategories(): Promise<any> {
+    return handleApiCall(() => this.api.get("/api/category"));
   }
-  async deleteCategories(payload: string[]): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.post(
-        "/api/category/bulk-delete",
-        payload
-      );
-      return response.data;
-    } catch (error: any) {
-      throw new Error(`Error during category bulk delete: ${error.message}`);
-    }
+
+  deleteCategories(payload: string[]): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/category/bulk-delete", payload)
+    );
   }
-  async editCategory(payload: any): Promise<any> {
-    try {
-      const response: AxiosResponse<any> = await this.api.patch(
-        "/api/category",
-        payload
-      );
-      return response.data;
-    } catch (error: any) {
-      throw new Error(`Error during editing category: ${error.message}`);
-    }
+
+  editCategory(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.patch("/api/category", payload));
+  }
+
+  getTransactions(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.post(`/api/transaction`, payload));
+  }
+
+  createNewTransaction(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/transaction/create", payload)
+    );
+  }
+
+  deleteTransactions(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.delete("/api/transaction", payload));
   }
 }
+
 const axiosService = new AxiosService(api);
 export default axiosService;

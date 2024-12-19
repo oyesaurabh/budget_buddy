@@ -10,11 +10,16 @@ async function getCategories(request: NextRequest) {
   }
   const { userId } = JSON.parse(sessionHeader);
 
-  // //getting all the accounts data of user.
-  const data = await prisma.category.findMany({
-    where: { userId },
-    select: { name: true, id: true },
-  });
+  //getting all the accounts data of user.
+  let data;
+  try {
+    data = await prisma.categories.findMany({
+      where: { user_id: userId },
+      select: { name: true, id: true },
+    });
+  } catch (error) {
+    throw new Error("Error while fetching categories");
+  }
 
   return NextResponse.json({
     status: true,
@@ -34,12 +39,17 @@ const createCategory = async (request: NextRequest) => {
   const { userId } = JSON.parse(sessionHeader);
 
   //now simply save data into db
-  const res = await prisma.category.create({
-    data: {
-      name,
-      userId,
-    },
-  });
+  let res;
+  try {
+    res = await prisma.categories.create({
+      data: {
+        name,
+        user_id: userId,
+      },
+    });
+  } catch (error) {
+    throw new Error("Error while creating category");
+  }
 
   return NextResponse.json(
     {
@@ -59,10 +69,15 @@ const editCategory = async (request: NextRequest) => {
     });
 
   //updating
-  await prisma.category.update({
-    where: { id },
-    data: { name },
-  });
+  try {
+    await prisma.categories.update({
+      where: { id },
+      data: { name },
+    });
+  } catch (error) {
+    throw new Error("Error while updating category");
+  }
+
   return NextResponse.json({
     status: true,
     message: "successfully updated",
