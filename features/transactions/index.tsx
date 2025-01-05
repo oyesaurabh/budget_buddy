@@ -11,24 +11,23 @@ import TransactionForm from "./transactionForm";
 import { transactionSchema } from "@/utils/schema";
 import { toast } from "sonner";
 import { useState } from "react";
-import {
-  useTransactionStore,
-  useNewTransaction,
-} from "@/hooks/useTransactionHook";
+import { useNewTransaction } from "@/hooks/useTransactionHook";
+import { axiosService } from "@/services";
+
 type formValues = z.input<typeof transactionSchema>;
 
-const NewTransactionSheet = () => {
-  const [isDisabled, setIsDisabled] = useState(false);
-  const { createTransaction } = useTransactionStore();
+const NewTransactionSheet = ({ setTransactions, currentAccount }: any) => {
   const { isOpen, onClose, values } = useNewTransaction();
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const onSubmit = async (v: formValues) => {
-    setIsDisabled(true);
     try {
-      // let success = false;
-      const success = await createTransaction(v);
-      // if (!!values) success = await editAccount({ ...values, name: v.name });
-      // else success = await createAccount(v);
+      setIsDisabled(true);
+
+      let success = false;
+      if (!!values) success = await editTransaction(v);
+      else success = await createTransaction(v);
+
       if (success) {
         onClose();
       }
@@ -41,8 +40,8 @@ const NewTransactionSheet = () => {
   };
 
   const onDelete = async () => {
-    setIsDisabled(true);
     try {
+      setIsDisabled(true);
       // const success = await deleteAccounts([values.id]);
       // if (success) onClose();
     } catch (error: any) {
@@ -53,6 +52,53 @@ const NewTransactionSheet = () => {
     }
   };
 
+  //utils function
+  const createTransaction = async (values: any): Promise<boolean> => {
+    try {
+      const response = await axiosService.createNewTransaction(values);
+      const { status, data, message } = response ?? {};
+
+      if (!status) {
+        toast.error(message ?? "Failed to create Transaction");
+        return false;
+      }
+
+      if (currentAccount?.id === data.account_id) {
+        // TODO: not showing the newly added transactions in the table (acc. name only)
+        const { account_id, category_id, ...rest } = data;
+        setTransactions((prev: any) => [
+          ...prev,
+          { ...rest, accountId: account_id, categoryId: category_id },
+        ]);
+      }
+      toast.success(message ?? "Transaction Created");
+      return true;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Error while creating Transaction";
+      toast.error(errorMessage);
+      return false;
+    }
+  };
+  const editTransaction = async (values: any): Promise<boolean> => {
+    try {
+      const response = await axiosService.editTransaction(values);
+      const { status, message } = response ?? {};
+      if (!status) {
+        toast.error(message ?? "Failed to Update");
+        return false;
+      }
+
+      // TODO: update the transaction in the table with the new changed values
+      toast.success(message ?? "Transaction Updated");
+      return true;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Error while creating Transaction";
+      toast.error(errorMessage);
+      return false;
+    }
+  };
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="space-y-8">

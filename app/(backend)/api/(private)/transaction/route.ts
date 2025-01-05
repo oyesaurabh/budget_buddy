@@ -74,5 +74,41 @@ const getTransactions = async (request: NextRequest) => {
     throw new Error("Error while fetching transactions");
   }
 };
+const editTransaction = async (request: NextRequest) => {
+  const body = await request.json();
+  const {
+    id,
+    amount,
+    notes,
+    payee,
+    date,
+    accountId: account_id,
+    categoryId: category_id,
+  } = body;
 
+  try {
+    await prisma.transactions.update({
+      where: {
+        id: id,
+      },
+      data: {
+        amount,
+        notes,
+        payee,
+        date,
+        account_id,
+        category_id,
+      },
+    });
+
+    return NextResponse.json({
+      status: true,
+      message: "Transaction updated successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error while updating transaction");
+  }
+};
 export const POST = withErrorHandling(getTransactions);
+export const PATCH = withErrorHandling(editTransaction);

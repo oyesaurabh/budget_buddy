@@ -28,64 +28,61 @@ class AxiosService {
     this.api = api;
   }
 
+  //auth
   signup(payload: any): Promise<any> {
     return handleApiCall(() => this.api.post("/api/signup", payload));
   }
-
   signin(payload: any): Promise<any> {
     return handleApiCall(() => this.api.post("/api/login", payload));
   }
-
   logout(): Promise<any> {
     return handleApiCall(() => this.api.post("/api/logout"));
   }
 
+  //accounts
   createNewAccount(payload: any): Promise<any> {
     return handleApiCall(() => this.api.post("/api/accounts", payload));
   }
-
   getAccounts(): Promise<any> {
     return handleApiCall(() => this.api.get("/api/accounts"));
   }
-
   deleteAccounts(payload: string[]): Promise<any> {
     return handleApiCall(() =>
       this.api.post("/api/accounts/bulk-delete", payload)
     );
   }
-
   editAccount(payload: any): Promise<any> {
     return handleApiCall(() => this.api.patch("/api/accounts", payload));
   }
 
+  //categories
   createNewCategory(payload: any): Promise<any> {
     return handleApiCall(() => this.api.post("/api/category", payload));
   }
-
   getCategories(): Promise<any> {
     return handleApiCall(() => this.api.get("/api/category"));
   }
-
   deleteCategories(payload: string[]): Promise<any> {
     return handleApiCall(() =>
       this.api.post("/api/category/bulk-delete", payload)
     );
   }
-
   editCategory(payload: any): Promise<any> {
     return handleApiCall(() => this.api.patch("/api/category", payload));
   }
 
+  //transactions
   getTransactions(payload: any): Promise<any> {
     return handleApiCall(() => this.api.post(`/api/transaction`, payload));
   }
-
   createNewTransaction(payload: any): Promise<any> {
     return handleApiCall(() =>
       this.api.post("/api/transaction/create", payload)
     );
   }
-
+  editTransaction(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.patch("/api/transaction", payload));
+  }
   deleteTransactions(payload: any): Promise<any> {
     return handleApiCall(() => this.api.delete("/api/transaction", payload));
   }

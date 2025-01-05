@@ -15,7 +15,6 @@ interface TransactionStore {
   isLoadingTransaction: boolean;
   error: string | null;
   deleteTransactions: (ids: string[]) => Promise<boolean>;
-  createTransaction: (values: any) => Promise<boolean>;
   //   editTransaction: (values: Transaction) => Promise<boolean>;
 }
 export const useTransactionStore = create<TransactionStore>((set) => ({
@@ -45,30 +44,6 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         err instanceof Error
           ? err.message
           : "Error while deleting Transactions";
-      toast.error(errorMessage);
-      return false;
-    }
-  },
-
-  createTransaction: async (values: any) => {
-    try {
-      const response = await axiosService.createNewTransaction(values);
-      const { status, data, message } = response ?? {};
-
-      if (!status) {
-        toast.error(message ?? "Failed to create Transaction");
-        return false;
-      }
-
-      set((state) => ({
-        Transactions: [...state.Transactions, data],
-      }));
-
-      toast.success(message ?? "Transaction Created");
-      return true;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Error while creating Transaction";
       toast.error(errorMessage);
       return false;
     }
