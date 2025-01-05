@@ -1,10 +1,3 @@
-// import {
-//   PrismaClientInitializationError,
-//   PrismaClientKnownRequestError,
-//   PrismaClientRustPanicError,
-//   PrismaClientUnknownRequestError,
-//   PrismaClientValidationError,
-// } from "@prisma/client/runtime/library";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 
@@ -14,7 +7,7 @@ export const withErrorHandling = (
   return async (request: NextRequest) => {
     try {
       return await handler(request);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof ZodError) {
         return NextResponse.json(
           {
@@ -24,24 +17,9 @@ export const withErrorHandling = (
           { status: 400 }
         );
       }
-      // if (
-      //   error instanceof PrismaClientUnknownRequestError ||
-      //   error instanceof PrismaClientKnownRequestError ||
-      //   error instanceof PrismaClientInitializationError ||
-      //   error instanceof PrismaClientRustPanicError ||
-      //   error instanceof PrismaClientValidationError
-      // ) {
-      //   return NextResponse.json(
-      //     {
-      //       status: false,
-      //       message: "Database Error",
-      //     },
-      //     { status: 500 }
-      //   );
-      // }
 
       return NextResponse.json(
-        { status: false, message: "Internal server error" },
+        { status: false, message: error.message ?? "Internal server error" },
         { status: 500 }
       );
     }

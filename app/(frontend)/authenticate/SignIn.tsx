@@ -51,6 +51,7 @@ export default function SignIn() {
 
       toast.success(message || "Login Successful");
       router.push("/");
+      router.prefetch("/");
     } catch (error: any) {
       toast.error(error?.message || "Something went wrong");
       console.error(error);

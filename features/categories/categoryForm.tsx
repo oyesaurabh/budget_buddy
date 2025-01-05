@@ -12,28 +12,28 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { accountSchema } from "@/utils/schema";
+import { categorySchema } from "@/utils/schema";
 import { z } from "zod";
 
 type Props = {
   id?: string | any;
-  defaultValues?: z.input<typeof accountSchema>;
-  onSubmit: (values: z.input<typeof accountSchema>) => void;
+  defaultValues?: z.input<typeof categorySchema>;
+  onSubmit: (values: z.input<typeof categorySchema>) => void;
   onDelete?: () => void;
   disabled?: boolean;
 };
-export default function AccountForm({
+export default function CategoryForm({
   id,
   defaultValues,
   onSubmit,
   onDelete,
   disabled,
 }: Props) {
-  const form = useForm<z.infer<typeof accountSchema>>({
-    resolver: zodResolver(accountSchema),
+  const form = useForm<z.infer<typeof categorySchema>>({
+    resolver: zodResolver(categorySchema),
     defaultValues: defaultValues,
   });
-  const handleSubmit = (values: z.infer<typeof accountSchema>) => {
+  const handleSubmit = (values: z.infer<typeof categorySchema>) => {
     onSubmit(values);
   };
   const handleDelete = () => {
@@ -47,7 +47,7 @@ export default function AccountForm({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Account Name</FormLabel>
+              <FormLabel>Category Name</FormLabel>
               <FormControl>
                 <Input
                   placeholder="e.g. Cash, Bank etc"
@@ -65,7 +65,7 @@ export default function AccountForm({
           ) : id != "" ? (
             "Save Changes"
           ) : (
-            "Create Account"
+            "Create Category"
           )}
         </Button>
         {!!id && (
@@ -77,7 +77,7 @@ export default function AccountForm({
             variant={"destructive"}
           >
             <TrashIcon />
-            Delete Account
+            Delete Category
           </Button>
         )}
       </form>

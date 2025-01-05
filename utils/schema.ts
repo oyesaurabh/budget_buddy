@@ -22,3 +22,14 @@ export const signinSchema = z.object({
 export const accountSchema = z.object({
   name: z.string().min(3, "Account Name should have atleast 3 char").trim(),
 });
+export const categorySchema = z.object({
+  name: z.string().min(3, "Category Name should have atleast 3 char").trim(),
+});
+export const transactionSchema = z.object({
+  date: z.coerce.date(),
+  accountId: z.string(),
+  categoryId: z.string().nullable().optional(),
+  payee: z.string(),
+  amount: z.string(),
+  notes: z.string().nullable().optional(),
+});

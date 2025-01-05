@@ -14,7 +14,7 @@ const bulkDelete = async (request: NextRequest) => {
   //lets delete from db
   let deleteResponse;
   try {
-    deleteResponse = await prisma.accounts.deleteMany({
+    deleteResponse = await prisma.categories.deleteMany({
       where: {
         id: {
           in: ids,
@@ -22,13 +22,15 @@ const bulkDelete = async (request: NextRequest) => {
       },
     });
   } catch (error) {
-    throw new Error("Error while deleting accounts");
+    throw new Error("Error while deleting categories");
   }
 
   return NextResponse.json(
     {
       status: true,
-      message: `${deleteResponse.count} account(s) deleted successfully`,
+      message: `${deleteResponse.count} ${
+        deleteResponse.count > 1 ? "categories" : "category"
+      } deleted successfully`,
     },
     { status: 200 }
   );

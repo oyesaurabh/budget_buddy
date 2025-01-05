@@ -7,24 +7,24 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import AccountForm from "./accountForm";
-import { accountSchema } from "@/utils/schema";
+import CategoryForm from "./categoryForm";
+import { categorySchema } from "@/utils/schema";
 import { toast } from "sonner";
 import { useState } from "react";
-import { useAccountStore, useNewAccount } from "@/hooks/useAccountsHook";
-type formValues = z.input<typeof accountSchema>;
+import { useCategoryStore, useNewCategory } from "@/hooks/useCategoryHook";
+type formValues = z.input<typeof categorySchema>;
 
-const NewAccountSheet = () => {
-  const { isOpen, onClose, values } = useNewAccount();
+const NewCategorySheet = () => {
+  const { isOpen, onClose, values } = useNewCategory();
   const [isDisabled, setIsDisabled] = useState(false);
-  const { createAccount, deleteAccounts, editAccount } = useAccountStore();
+  const { createCategory, deleteCategories, editCategory } = useCategoryStore();
 
   const onSubmit = async (v: formValues) => {
     setIsDisabled(true);
     try {
       let success = false;
-      if (!!values) success = await editAccount({ ...values, name: v.name });
-      else success = await createAccount(v);
+      if (!!values) success = await editCategory({ ...values, name: v.name });
+      else success = await createCategory(v);
       if (success) {
         onClose();
       }
@@ -39,7 +39,7 @@ const NewAccountSheet = () => {
   const onDelete = async () => {
     setIsDisabled(true);
     try {
-      const success = await deleteAccounts([values.id]);
+      const success = await deleteCategories([values.id]);
       if (success) onClose();
     } catch (error: any) {
       toast.error(error?.message ?? "Something went wrong");
@@ -53,12 +53,12 @@ const NewAccountSheet = () => {
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="space-y-8">
         <SheetHeader>
-          <SheetTitle>New Account</SheetTitle>
+          <SheetTitle>New Category</SheetTitle>
           <SheetDescription>
-            Create a New Account to track your transaction
+            Create a New Category to manage your account
           </SheetDescription>
         </SheetHeader>
-        <AccountForm
+        <CategoryForm
           id={values?.id ?? ""}
           onSubmit={onSubmit}
           onDelete={onDelete}
@@ -69,4 +69,4 @@ const NewAccountSheet = () => {
     </Sheet>
   );
 };
-export default NewAccountSheet;
+export default NewCategorySheet;

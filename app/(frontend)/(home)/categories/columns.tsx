@@ -6,7 +6,7 @@ import { ArrowUpDown, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { useNewAccount } from "@/hooks/useAccountsHook";
+import { useNewCategory } from "@/hooks/useCategoryHook";
 
 export type responseType = {
   id: string;
@@ -45,7 +45,7 @@ export const columns: ColumnDef<responseType>[] = [
           className="px-0"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Account Name
+          Category Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -57,7 +57,7 @@ export const columns: ColumnDef<responseType>[] = [
       return <span>Edit</span>;
     },
     cell: ({ row }) => {
-      const { setValues, onOpen } = useNewAccount();
+      const { setValues, onOpen } = useNewCategory();
       return (
         <Button
           variant="ghost"

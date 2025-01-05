@@ -1,8 +1,9 @@
-model Users {
-    id       String     @id @default(cuid())
-    name     String
-    email    String     @unique
-    password String
-    salt     String
-    accounts Accounts[]
+model users {
+    id         String       @id @default(cuid())
+    name       String
+    email      String       @unique
+    password   String
+    salt       String
+    accounts   accounts[]
+    categories categories[]
 }

@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { withErrorHandling } from "@/utils";
-import { accountSchema } from "@/utils/schema";
+import { categorySchema } from "@/utils/schema";
 
-async function getAccounts(request: NextRequest) {
+async function getCategories(request: NextRequest) {
   const sessionHeader = request.headers.get("x-user-session");
   if (!sessionHeader) {
     throw new Error("Invalid session");
   }
   const { userId } = JSON.parse(sessionHeader);
 
-  // getting all the accounts data of user.
+  //getting all the accounts data of user.
   let data;
   try {
-    data = await prisma.accounts.findMany({
+    data = await prisma.categories.findMany({
       where: { user_id: userId },
       select: { name: true, id: true },
     });
-  } catch (err) {
-    throw new Error("Error while fetching accounts");
+  } catch (error) {
+    throw new Error("Error while fetching categories");
   }
 
   return NextResponse.json({
@@ -27,9 +27,9 @@ async function getAccounts(request: NextRequest) {
     data: data,
   });
 }
-const createAccount = async (request: NextRequest) => {
+const createCategory = async (request: NextRequest) => {
   const body = await request.json();
-  const { name } = accountSchema.parse(body);
+  const { name } = categorySchema.parse(body);
 
   //taking our userid from req header
   const sessionHeader = request.headers.get("x-user-session");
@@ -41,26 +41,26 @@ const createAccount = async (request: NextRequest) => {
   //now simply save data into db
   let res;
   try {
-    res = await prisma.accounts.create({
+    res = await prisma.categories.create({
       data: {
         name,
         user_id: userId,
       },
     });
   } catch (error) {
-    throw new Error("Error while creating account");
+    throw new Error("Error while creating category");
   }
 
   return NextResponse.json(
     {
       status: true,
-      message: "Account Created Successfully",
+      message: "Category Created Successfully",
       data: { id: res.id, name: res.name },
     },
     { status: 200 }
   );
 };
-const editAccount = async (request: NextRequest) => {
+const editCategory = async (request: NextRequest) => {
   const { name, id } = await request.json();
   if (!!name == false || !!id == false)
     return NextResponse.json({
@@ -70,12 +70,12 @@ const editAccount = async (request: NextRequest) => {
 
   //updating
   try {
-    await prisma.accounts.update({
+    await prisma.categories.update({
       where: { id },
       data: { name },
     });
-  } catch (err) {
-    throw new Error("Error while updating account");
+  } catch (error) {
+    throw new Error("Error while updating category");
   }
 
   return NextResponse.json({
@@ -83,6 +83,6 @@ const editAccount = async (request: NextRequest) => {
     message: "successfully updated",
   });
 };
-export const GET = withErrorHandling(getAccounts);
-export const POST = withErrorHandling(createAccount);
-export const PATCH = withErrorHandling(editAccount);
+export const GET = withErrorHandling(getCategories);
+export const POST = withErrorHandling(createCategory);
+export const PATCH = withErrorHandling(editCategory);
