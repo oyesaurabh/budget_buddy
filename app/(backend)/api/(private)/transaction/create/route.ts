@@ -1,5 +1,6 @@
 import prisma from "@/lib/db";
 import { validateAccountOwnership, withErrorHandling } from "@/utils";
+import { transactionSchema } from "@/utils/schema";
 import { NextRequest, NextResponse } from "next/server";
 
 const createTransactions = async (request: NextRequest) => {
@@ -11,7 +12,8 @@ const createTransactions = async (request: NextRequest) => {
 
   // Parse the request body
   const body = await request.json();
-  const { accountId, amount, date, categoryId, payee, notes } = body;
+  const { accountId, amount, date, categoryId, payee, notes } =
+    transactionSchema.parse(body);
   if (!accountId || !amount || !date || !payee) {
     return NextResponse.json({
       status: false,

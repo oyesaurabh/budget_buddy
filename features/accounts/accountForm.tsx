@@ -41,7 +41,7 @@ export default function AccountForm({
   };
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           name="name"
           control={form.control}
@@ -74,7 +74,7 @@ export default function AccountForm({
             disabled={disabled}
             onClick={handleDelete}
             className="w-full"
-            variant={"outline"}
+            variant={"destructive"}
           >
             <TrashIcon />
             Delete Account

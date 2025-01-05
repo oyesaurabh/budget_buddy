@@ -28,7 +28,7 @@ import { Trash } from "lucide-react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  filterKey: string;
+  filterKey?: string;
   onDelete?: (data: any) => void;
 }
 
@@ -66,32 +66,34 @@ export function DataTable<TData, TValue>({
     <div>
       <ConfirmationDialog />
       <div className="flex items-center justify-between pb-2">
-        <Input
-          placeholder={`Filter ${filterKey}...`}
-          value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn(filterKey)?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        {
-          <Button
-            disabled={!table.getFilteredSelectedRowModel().rows.length}
-            variant={"outline"}
-            className="font-normal text-xs ml-2"
-            size={"sm"}
-            onClick={async () => {
-              const ok = await confirm();
-              if (!ok) return;
-              if (onDelete) {
-                onDelete(table.getFilteredSelectedRowModel().rows);
-              }
-              table.resetRowSelection();
-            }}
-          >
-            <Trash /> Delete ({table.getFilteredSelectedRowModel().rows.length})
-          </Button>
-        }
+        {filterKey && (
+          <Input
+            placeholder={`Filter ${filterKey}...`}
+            value={
+              (table.getColumn(filterKey)?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn(filterKey)?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        )}
+        <Button
+          disabled={!table.getFilteredSelectedRowModel().rows.length}
+          variant={"outline"}
+          className="font-normal text-xs ml-2"
+          size={"sm"}
+          onClick={async () => {
+            const ok = await confirm();
+            if (!ok) return;
+            if (onDelete) {
+              onDelete(table.getFilteredSelectedRowModel().rows);
+            }
+            table.resetRowSelection();
+          }}
+        >
+          <Trash /> Delete ({table.getFilteredSelectedRowModel().rows.length})
+        </Button>
       </div>
       <div className="rounded-md border">
         <Table>

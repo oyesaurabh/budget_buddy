@@ -12,43 +12,16 @@ interface CreateTransactionValues {
 }
 interface TransactionStore {
   Transactions: Transaction[];
-  isLoading: boolean;
+  isLoadingTransaction: boolean;
   error: string | null;
-  fetchTransactions: () => Promise<void>;
-  //   deleteTransactions: (ids: string[]) => Promise<boolean>;
-  createTransaction: (values: CreateTransactionValues) => Promise<boolean>;
+  deleteTransactions: (ids: string[]) => Promise<boolean>;
+  createTransaction: (values: any) => Promise<boolean>;
   //   editTransaction: (values: Transaction) => Promise<boolean>;
 }
 export const useTransactionStore = create<TransactionStore>((set) => ({
   Transactions: [],
-  isLoading: true,
+  isLoadingTransaction: true,
   error: null,
-
-  fetchTransactions: async () => {
-    try {
-      set({ isLoading: true, error: null });
-      const payload = { accountId: "cm4vm45q70001i8leflq3bq1f" };
-      const { status, data, message } = await axiosService.getTransactions(
-        payload
-      );
-
-      if (!status) {
-        set({
-          error: message ?? "Failed to fetch Transactions",
-          isLoading: false,
-        });
-        toast.error(message ?? "Something went wrong");
-        return;
-      }
-
-      set({ Transactions: data, isLoading: false });
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unknown error occurred";
-      set({ error: errorMessage, isLoading: false });
-      toast.error(errorMessage);
-    }
-  },
 
   deleteTransactions: async (ids: string[]) => {
     try {
@@ -77,7 +50,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
     }
   },
 
-  createTransaction: async (values: CreateTransactionValues) => {
+  createTransaction: async (values: any) => {
     try {
       const response = await axiosService.createNewTransaction(values);
       const { status, data, message } = response ?? {};
@@ -125,7 +98,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   //     }
   //   },
 }));
-useTransactionStore.getState().fetchTransactions();
+// useTransactionStore.getState().fetchTransactions({});
 
 //this is our Transaction sidebar slide option
 type NewTransactionState = {

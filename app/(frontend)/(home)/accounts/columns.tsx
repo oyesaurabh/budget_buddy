@@ -42,6 +42,7 @@ export const columns: ColumnDef<responseType>[] = [
       return (
         <Button
           variant="ghost"
+          className="px-0"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Account Name
@@ -52,11 +53,15 @@ export const columns: ColumnDef<responseType>[] = [
   },
   {
     id: "action",
+    header: () => {
+      return <span>Edit</span>;
+    },
     cell: ({ row }) => {
       const { setValues, onOpen } = useNewAccount();
       return (
         <Button
           variant="ghost"
+          className="px-0"
           key={row.original.id}
           onClick={() => {
             setValues(row.original);

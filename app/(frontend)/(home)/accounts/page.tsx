@@ -9,7 +9,7 @@ import { useNewAccount, useAccountStore } from "@/hooks/useAccountsHook";
 
 const AccountPage = () => {
   const { onOpen, setValues } = useNewAccount();
-  const { accounts, isLoading, deleteAccounts } = useAccountStore();
+  const { accounts, isAccountLoading, deleteAccounts } = useAccountStore();
 
   const handleDelete = async (row: any) => {
     const ids = row.map((r: any) => r?.original?.id);
@@ -17,7 +17,7 @@ const AccountPage = () => {
   };
 
   const renderContent = () => {
-    if (isLoading) {
+    if (isAccountLoading) {
       return (
         <div className="h-[400px] w-full flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

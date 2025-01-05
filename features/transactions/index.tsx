@@ -18,9 +18,9 @@ import {
 type formValues = z.input<typeof transactionSchema>;
 
 const NewTransactionSheet = () => {
-  const { isOpen, onClose, values } = useNewTransaction();
   const [isDisabled, setIsDisabled] = useState(false);
   const { createTransaction } = useTransactionStore();
+  const { isOpen, onClose, values } = useNewTransaction();
 
   const onSubmit = async (v: formValues) => {
     setIsDisabled(true);
@@ -58,14 +58,14 @@ const NewTransactionSheet = () => {
       <SheetContent className="space-y-8">
         <SheetHeader>
           <SheetTitle>New Transaction</SheetTitle>
-          <SheetDescription>Create a New Transaction Now.</SheetDescription>
+          <SheetDescription>Create a New Transaction.</SheetDescription>
         </SheetHeader>
         <TransactionForm
-          id={values?.id ?? ""}
+          id={values?.id ?? null}
           onSubmit={onSubmit}
           onDelete={onDelete}
           disabled={isDisabled}
-          defaultValues={{ name: values.name ?? "" }}
+          defaultValues={values}
         />
       </SheetContent>
     </Sheet>
