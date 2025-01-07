@@ -48,6 +48,7 @@ export default function TransactionForm({
   const { Categories } = useCategoryStore();
 
   const handleSubmit = (values: z.infer<typeof transactionSchema>) => {
+    console.log(">>", values);
     onSubmit(values);
   };
   const handleDelete = () => {
@@ -83,11 +84,13 @@ export default function TransactionForm({
                   disabled={disabled}
                 >
                   <SelectTrigger>
-                    {defaultValues?.accountId
-                      ? accounts.find(
-                          (account) => account.id === defaultValues?.accountId
-                        )?.name
-                      : "Select Account"}
+                    {/*TODO: wouldnt show on first select*/}
+                    <SelectValue placeholder="Select Account">
+                      {
+                        accounts.find((account) => account.id === field.value)
+                          ?.name
+                      }
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {accounts.map((account) => (
@@ -115,11 +118,14 @@ export default function TransactionForm({
                   disabled={disabled}
                 >
                   <SelectTrigger>
-                    {defaultValues?.categoryId
-                      ? Categories.find(
-                          (category) => category.id === defaultValues.categoryId
+                    {/*TODO: wouldnt show on first select*/}
+                    <SelectValue placeholder="Select Category">
+                      {
+                        Categories.find(
+                          (category) => category.id === field.value
                         )?.name
-                      : "Select Category"}
+                      }
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {Categories.map((category) => (

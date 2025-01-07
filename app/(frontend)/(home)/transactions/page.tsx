@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { toast } from "sonner";
 import { Loader2, PlusIcon } from "lucide-react";
@@ -93,7 +93,10 @@ const TransactionPage = () => {
 
   return (
     <>
-      <NewTransactionSheet />
+      <NewTransactionSheet
+        setTransactions={setTransactions}
+        currentAccount={currentAccount}
+      />
       <div className="max-w-screen-2xl mx-auto -mt-24">
         <Card className="border-none">
           <CardHeader className="gap-y-2 md:flex-row md:items-center md:justify-between">
