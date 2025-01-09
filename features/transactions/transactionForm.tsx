@@ -30,7 +30,7 @@ type Props = {
   id?: string | null;
   defaultValues?: z.input<typeof transactionSchema>;
   onSubmit: (values: z.input<typeof transactionSchema>) => void;
-  onDelete?: () => void;
+  onDelete?: (values: Array<z.input<typeof transactionSchema>>) => void;
   disabled?: boolean;
 };
 export default function TransactionForm({
@@ -48,11 +48,12 @@ export default function TransactionForm({
   const { Categories } = useCategoryStore();
 
   const handleSubmit = (values: z.infer<typeof transactionSchema>) => {
-    console.log(">>", values);
     onSubmit(values);
   };
   const handleDelete = () => {
-    onDelete?.();
+    const values = form.getValues();
+    const valuesArray = [values];
+    onDelete?.(valuesArray);
   };
   return (
     <Form {...form}>

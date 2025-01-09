@@ -69,8 +69,23 @@ const TransactionPage = () => {
 
   //this will handle transaction delete
   const handleDelete = async (row: any) => {
-    const ids = row.map((r: any) => r?.original?.id);
-    // await deleteTransactions(ids);
+    const ids = row?.map((r: any) => r?.original?.id || r?.id);
+    if (!ids || ids.length === 0) {
+      toast.error("No IDs provided for deletion.");
+      return;
+    }
+    try {
+      const { status, message } = await axiosService.deleteTransactions(ids);
+      if (!status) {
+        toast.error(message ?? "Something went wrong");
+        return;
+      }
+      toast.success(message ?? "Transactions deleted successfully"); //TODO: show transactions without the deleted ones
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "An unknown error occurred";
+      toast.error(errorMessage);
+    }
   };
 
   //rendering actual content
@@ -96,6 +111,7 @@ const TransactionPage = () => {
       <NewTransactionSheet
         setTransactions={setTransactions}
         currentAccount={currentAccount}
+        onDelete={handleDelete}
       />
       <div className="max-w-screen-2xl mx-auto -mt-24">
         <Card className="border-none">
