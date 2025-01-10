@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 
 import { toast } from "sonner";
-import { Loader2, PlusIcon } from "lucide-react";
+import { Loader2, PlusIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -19,18 +19,21 @@ import { useAccountStore } from "@/hooks/useAccountsHook";
 import NewTransactionSheet from "@/features/transactions";
 import { useNewTransaction } from "@/hooks/useTransactionHook";
 
+import CSVUpload from "./components/CSVUpload";
+
 const TransactionPage = () => {
   //account options hook
   const {
+    error,
     accounts,
     isAccountLoading,
-    error,
     currentAccount,
     setCurrentAccount,
   } = useAccountStore();
   const { onOpen, setValues } = useNewTransaction();
   const [Transactions, setTransactions] = useState([]);
   const [isLoadingTransaction, setIsLoadingTransaction] = useState(false);
+  const [CSVUploadModal, setCSVUploadModal] = useState(false);
 
   useEffect(() => {
     if (!currentAccount?.id) return;
@@ -88,6 +91,10 @@ const TransactionPage = () => {
     }
   };
 
+  //this will handle csv upload
+  const handleCSVUpload = () => {
+    setCSVUploadModal((pre) => !pre);
+  };
   //rendering actual content
   const renderContent = () => {
     if (isLoadingTransaction) {
@@ -113,11 +120,18 @@ const TransactionPage = () => {
         currentAccount={currentAccount}
         onDelete={handleDelete}
       />
+
+      {CSVUploadModal && (
+        <CSVUpload open={CSVUploadModal} onOpenChange={setCSVUploadModal} />
+      )}
       <div className="max-w-screen-2xl mx-auto -mt-24">
         <Card className="border-none">
           <CardHeader className="gap-y-2 md:flex-row md:items-center md:justify-between">
             <CardTitle>Transactions Page</CardTitle>
             <div className="flex gap-x-4 sm:justify-between">
+              <Button onClick={() => setCSVUploadModal(true)}>
+                <Upload className="h-4 w-4" />
+              </Button>
               <Button
                 onClick={() => {
                   onOpen();

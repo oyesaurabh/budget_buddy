@@ -4,18 +4,20 @@ export function convertTimestamp(timestamp: string): string {
   // Get day with leading zero
   const day = String(date.getDate()).padStart(2, "0");
 
-  // Get month abbreviation
+  // Get month abbreviation (first letter capitalized)
   const month = date.toLocaleString("en-US", { month: "short" });
 
   // Get year
   const year = date.getFullYear();
 
   // Get time in 12-hour format
-  const time = date.toLocaleString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const time = date
+    .toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(" ", ""); // Remove space before AM/PM
 
-  return `${day} ${month.toUpperCase()}, ${year} ${time}`;
+  return `${day} ${month}, ${year} ${time}`;
 }
