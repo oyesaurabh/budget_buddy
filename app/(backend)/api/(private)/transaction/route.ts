@@ -75,6 +75,12 @@ const getTransactions = async (request: NextRequest) => {
   }
 };
 const editTransaction = async (request: NextRequest) => {
+  const sessionHeader = request.headers.get("x-user-session");
+  if (!sessionHeader) {
+    throw new Error("Invalid session");
+  }
+  const { userId } = JSON.parse(sessionHeader);
+
   const body = await request.json();
   const {
     id,
@@ -85,6 +91,20 @@ const editTransaction = async (request: NextRequest) => {
     accountId: account_id,
     categoryId: category_id,
   } = body;
+  const parsedAmount = parseInt(amount, 10);
+  if (isNaN(parsedAmount)) {
+    throw new Error("Invalid amount");
+  }
+
+  const isOwner = await validateAccountOwnership(userId, account_id); //TODO: need to validate transaction ownership
+  if (!isOwner)
+    return NextResponse.json(
+      {
+        status: false,
+        message: "Unauthorized: Account does not belong to user",
+      },
+      { status: 403 }
+    );
 
   try {
     await prisma.transactions.update({
@@ -92,7 +112,7 @@ const editTransaction = async (request: NextRequest) => {
         id: id,
       },
       data: {
-        amount,
+        amount: parsedAmount,
         notes,
         payee,
         date,
@@ -110,5 +130,52 @@ const editTransaction = async (request: NextRequest) => {
     throw new Error("Error while updating transaction");
   }
 };
+const deleteTransaction = async (request: NextRequest) => {
+  // const sessionHeader = request.headers.get("x-user-session");
+  // if (!sessionHeader) {
+  //   throw new Error("Invalid session");
+  // }
+  // const { userId } = JSON.parse(sessionHeader);
+
+  // const ids = await request.json();
+  const ids = await request.json();
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return NextResponse.json(
+      { status: false, message: "No IDs provided for deletion." },
+      { status: 400 }
+    );
+  }
+  // const isOwner = await validateAccountOwnership(userId, id); //TODO: need to validate transaction ownership
+  // if (!isOwner)
+  //   return NextResponse.json(
+  //     {
+  //       status: false,
+  //       message: "Unauthorized: Account does not belong to user",
+  //     },
+  //     { status: 403 }
+  //   );
+
+  let deleteResponse;
+  try {
+    deleteResponse = await prisma.transactions.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  } catch (error) {
+    throw new Error("Error while deleting accounts");
+  }
+  return NextResponse.json(
+    {
+      status: true,
+      message: `${deleteResponse.count} transaction(s) deleted successfully`,
+    },
+    { status: 200 }
+  );
+};
 export const POST = withErrorHandling(getTransactions);
 export const PATCH = withErrorHandling(editTransaction);
+export const DELETE = withErrorHandling(deleteTransaction);

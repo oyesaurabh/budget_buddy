@@ -16,7 +16,11 @@ import { axiosService } from "@/services";
 
 type formValues = z.input<typeof transactionSchema>;
 
-const NewTransactionSheet = ({ setTransactions, currentAccount }: any) => {
+const NewTransactionSheet = ({
+  setTransactions,
+  currentAccount,
+  onDelete,
+}: any) => {
   const { isOpen, onClose, values } = useNewTransaction();
   const [isDisabled, setIsDisabled] = useState(false);
 
@@ -25,25 +29,13 @@ const NewTransactionSheet = ({ setTransactions, currentAccount }: any) => {
       setIsDisabled(true);
 
       let success = false;
+      console.log(v);
       if (!!values) success = await editTransaction(v);
       else success = await createTransaction(v);
 
       if (success) {
         onClose();
       }
-    } catch (error: any) {
-      toast.error(error?.message ?? "Something went wrong");
-      console.error(error);
-    } finally {
-      setIsDisabled(false);
-    }
-  };
-
-  const onDelete = async () => {
-    try {
-      setIsDisabled(true);
-      // const success = await deleteAccounts([values.id]);
-      // if (success) onClose();
     } catch (error: any) {
       toast.error(error?.message ?? "Something went wrong");
       console.error(error);

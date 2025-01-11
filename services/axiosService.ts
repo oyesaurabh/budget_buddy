@@ -83,8 +83,10 @@ class AxiosService {
   editTransaction(payload: any): Promise<any> {
     return handleApiCall(() => this.api.patch("/api/transaction", payload));
   }
-  deleteTransactions(payload: any): Promise<any> {
-    return handleApiCall(() => this.api.delete("/api/transaction", payload));
+  deleteTransactions(payload: string[]): Promise<any> {
+    return handleApiCall(() =>
+      this.api.delete("/api/transaction", { data: payload })
+    );
   }
 }
 

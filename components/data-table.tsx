@@ -80,7 +80,7 @@ export function DataTable<TData, TValue>({
         )}
         <Button
           disabled={!table.getFilteredSelectedRowModel().rows.length}
-          variant={"outline"}
+          variant={"secondary"}
           className="font-normal text-xs ml-2"
           size={"sm"}
           onClick={async () => {
