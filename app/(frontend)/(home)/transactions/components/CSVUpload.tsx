@@ -39,21 +39,13 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
   // Available fields to map to
   const availableFields = [
     "Date",
-    "Category",
     "Amount",
     "Payee",
     "Notes",
-    "Cheque",
+    "Cheque No.",
+    "Debit",
+    "Credit",
   ];
-
-  const parseCSV = (content: string) => {
-    const lines = content.split("\n");
-    const headers = lines[0].split(",").map((header) => header.trim());
-    const rows = lines
-      .slice(1)
-      .map((line) => line.split(",").map((cell) => cell.trim()));
-    return { headers, rows: rows.slice(0, 5) }; // Show first 5 rows for preview
-  };
 
   const handleFileSelect = async (selectedFile: File) => {
     if (selectedFile?.type === "text/csv") {
@@ -81,15 +73,89 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
       ...prev,
       [csvColumn]: mappedField,
     }));
+    console.log("columnMappings:", columnMappings);
+    console.log("CSVData:", csvData);
   };
 
+  //upload logic
+  interface TransactionData {
+    accountId: string;
+    transactions: {
+      amount: number;
+      date: string;
+      payee: string;
+      notes: string;
+      chequeNo?: string;
+    }[];
+  }
+
+  const transformCSVToTransactions = (
+    csvData: { headers: string[]; rows: string[][] },
+    accountId: string
+  ): TransactionData => {
+    // Skip the header row (index 0) and start from actual data (index 1)
+    const transactions = csvData.rows.slice(1).map((row) => {
+      // Create an object from the row data
+      const rowData = csvData.headers.reduce((acc, header, index) => {
+        acc[header] = row[index];
+        return acc;
+      }, {} as Record<string, string>);
+
+      // Parse the date (assuming format "DD-MM-YYYY HH:mm:ss")
+      const dateString = rowData["Txn Date"].split(" ")[0]; // Get just the date part
+      const [day, month, year] = dateString.split("-");
+      const formattedDate = `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
+
+      // Calculate amount (positive for Credit, negative for Debit)
+      let amount = 0;
+      if (rowData["Credit"]) {
+        amount = parseFloat(rowData["Credit"].replace(/,/g, ""));
+      } else if (rowData["Debit"]) {
+        amount = -parseFloat(rowData["Debit"].replace(/,/g, ""));
+      }
+
+      // Extract payee from Description
+      // Assuming UPI format: UPI/DR|CR/{id}/{payee name}/{bank}/**{other details}
+      let payee = "Unknown";
+      const description = rowData["Description"];
+      if (description.startsWith("UPI")) {
+        const parts = description.split("/");
+        if (parts.length >= 4) {
+          payee = parts[3];
+        }
+      } else if (description.startsWith("NEFT")) {
+        // Handle NEFT format
+        const parts = description.split("-");
+        if (parts.length >= 4) {
+          payee = parts[3];
+        }
+      }
+
+      return {
+        amount: amount,
+        date: formattedDate,
+        payee: payee,
+        notes: rowData["Description"],
+        ...(rowData["Cheque No."] && { chequeNo: rowData["Cheque No."] }),
+      };
+    });
+
+    return {
+      accountId,
+      transactions: transactions.filter((t) => t.amount !== 0), // Remove any transactions with 0 amount
+    };
+  };
   const handleUpload = async () => {
     if (!file) return;
     try {
       setLoading(true);
-      // Simulate upload with mappings
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Column mappings:", columnMappings);
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          transformCSVToTransactions(csvData, currentAccount?.id || "");
+          resolve("");
+        }, 2000);
+      });
+      console.log("data:", csvData);
       onOpenChange(false);
       setShowMapper(false);
     } finally {
@@ -107,7 +173,9 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
           showMapper ? "max-w-4xl h-screen sm:h-[85vh]" : "sm:max-w-[425px]"
         } `}
       >
-        <DialogHeader className="flex-row justify-end">
+        <DialogHeader
+          className={`flex-row ${showMapper ? "justify-between" : ""}`}
+        >
           <div>
             <DialogTitle>
               {showMapper ? "Map CSV Columns" : "Upload CSV"}
@@ -131,7 +199,7 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
                 }
               }}
             >
-              <SelectTrigger className="min-w-[150px]">
+              <SelectTrigger className="max-w-[150px]">
                 {currentAccount ? currentAccount.name : "Select an account"}
               </SelectTrigger>
               <SelectContent>
@@ -187,8 +255,8 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
           </div>
         ) : (
           <div className="grid gap-4">
-            <div className="overflow-x-auto border rounded-lg">
-              <table className="w-full h-full">
+            <div className="overflow-auto border rounded-lg h-[480px] max-w-3/4">
+              <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-800 dark:text-gray-50">
                   <tr>
                     {csvData.headers.map((header, i) => (
@@ -203,7 +271,7 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
                               handleColumnMap(header, value)
                             }
                           >
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger className="w-[150px] dark:border-gray-700">
                               <SelectValue placeholder="Select field" />
                             </SelectTrigger>
                             <SelectContent>
@@ -221,7 +289,7 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {csvData.rows.map((row, i) => (
+                  {csvData.rows.slice(1).map((row, i) => (
                     <tr key={i} className="border-t">
                       {row.map((cell, j) => (
                         <td key={j} className="px-4 py-2 text-sm">
@@ -233,8 +301,7 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
                 </tbody>
               </table>
             </div>
-            <div className="flex justify-between">
-              <p className="italic text-sm ">**Showing first 5 rows**</p>
+            <div className="flex justify-end">
               <div className="flex gap-3">
                 <Button
                   variant="outline"
@@ -265,3 +332,53 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
 };
 
 export default CSVUpload;
+
+//utils
+const parseCSVLine = (line: string): string[] => {
+  const result: string[] = [];
+  let cell = "";
+  let insideQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      if (insideQuotes && line[i + 1] === '"') {
+        // Handle escaped quotes
+        cell += '"';
+        i++;
+      } else {
+        // Toggle quotes state
+        insideQuotes = !insideQuotes;
+      }
+    } else if (char === "," && !insideQuotes) {
+      // End of cell
+      result.push(cell.trim());
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+
+  // Add the last cell
+  result.push(cell.trim());
+  return result;
+};
+
+const parseCSV = (content: string) => {
+  // Split into lines, handling potential \r\n
+  const lines = content.split(/\r?\n/).filter((line) => line.trim());
+
+  // Parse headers
+  const headers = parseCSVLine(lines[0]);
+
+  // Parse rows (first 5 for preview)
+  const rows = lines.map((line) => {
+    const cells = parseCSVLine(line);
+    // Ensure we have the same number of cells as headers
+    while (cells.length < headers.length) cells.push("");
+    return cells;
+  });
+
+  return { headers, rows };
+};

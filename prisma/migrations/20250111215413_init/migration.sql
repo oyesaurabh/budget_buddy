@@ -1,9 +1,13 @@
+-- CreateEnum
+CREATE TYPE "TransactionType" AS ENUM ('CREDIT', 'DEBIT');
+
 -- CreateTable
 CREATE TABLE "accounts" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
-    "plaid_id" TEXT,
+    "balance" INTEGER NOT NULL DEFAULT 0,
+    "balance_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "accounts_pkey" PRIMARY KEY ("id")
 );
@@ -27,6 +31,8 @@ CREATE TABLE "transactions" (
     "date" TIMESTAMP(3) NOT NULL,
     "account_id" TEXT NOT NULL,
     "category_id" TEXT,
+    "cheque_no" TEXT,
+    "transaction_type" "TransactionType" NOT NULL,
 
     CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
@@ -41,6 +47,12 @@ CREATE TABLE "users" (
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE INDEX "transactions_account_id_idx" ON "transactions"("account_id");
+
+-- CreateIndex
+CREATE INDEX "transactions_category_id_idx" ON "transactions"("category_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");

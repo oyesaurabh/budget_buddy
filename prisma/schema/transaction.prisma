@@ -1,11 +1,21 @@
+enum TransactionType {
+    CREDIT
+    DEBIT
+}
+
 model transactions {
-    id          String      @id @default(cuid())
-    amount      Int
-    notes       String?
-    payee       String
-    date        DateTime
-    account_id  String
-    category_id String?
-    account     accounts    @relation(fields: [account_id], references: [id], onDelete: Cascade)
-    category    categories? @relation(fields: [category_id], references: [id], onDelete: SetNull)
+    id               String          @id @default(cuid())
+    amount           Int
+    notes            String?
+    payee            String
+    date             DateTime
+    account_id       String
+    category_id      String?
+    cheque_no        String? // Added for CSV import
+    transaction_type TransactionType // Added for CSV import (CREDIT/DEBIT)
+    account          accounts        @relation(fields: [account_id], references: [id], onDelete: Cascade)
+    category         categories?     @relation(fields: [category_id], references: [id], onDelete: SetNull)
+
+    @@index([account_id])
+    @@index([category_id])
 }
