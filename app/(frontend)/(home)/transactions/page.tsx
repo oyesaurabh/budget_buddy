@@ -91,10 +91,6 @@ const TransactionPage = () => {
     }
   };
 
-  //this will handle csv upload
-  const handleCSVUpload = () => {
-    setCSVUploadModal((pre) => !pre);
-  };
   //rendering actual content
   const renderContent = () => {
     if (isLoadingTransaction) {

@@ -172,6 +172,11 @@ export default function TransactionForm({
                   placeholder="Enter amount"
                   disabled={disabled}
                   {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numberValue = value ? Number(value) : undefined;
+                    field.onChange(numberValue);
+                  }}
                 />
               </FormControl>
               <FormMessage />

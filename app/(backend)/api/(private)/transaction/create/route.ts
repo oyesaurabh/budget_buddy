@@ -37,7 +37,7 @@ const createTransactions = async (request: NextRequest) => {
     newTransaction = await prisma.transactions.create({
       data: {
         account_id: accountId,
-        amount: Number(amount),
+        amount: amount,
         date: new Date(date),
         category_id: categoryId || null,
         payee,

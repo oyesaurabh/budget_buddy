@@ -31,7 +31,7 @@ export const transactionSchema = z.object({
   accountId: z.string(),
   categoryId: z.string().nullable().optional(),
   payee: z.string(),
-  amount: z.string(),
+  amount: z.number(),
   notes: z.string().nullable().optional(),
   account_name: z.string().optional(),
   category_name: z.string().nullable().optional(),
