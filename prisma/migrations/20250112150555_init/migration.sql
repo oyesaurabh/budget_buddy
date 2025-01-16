@@ -17,7 +17,6 @@ CREATE TABLE "categories" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
-    "plaid_id" TEXT,
 
     CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
 );
@@ -32,7 +31,6 @@ CREATE TABLE "transactions" (
     "account_id" TEXT NOT NULL,
     "category_id" TEXT,
     "cheque_no" TEXT,
-    "transaction_type" "TransactionType" NOT NULL,
 
     CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );

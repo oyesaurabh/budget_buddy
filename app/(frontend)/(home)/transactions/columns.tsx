@@ -124,6 +124,11 @@ export const columns: ColumnDef<responseType>[] = [
     },
   },
   {
+    accessorKey: "cheque_no",
+    header: () => <span>Cheque No</span>,
+    cell: ({ row }: any) => <span>{row.original.cheque_no ?? "-"}</span>,
+  },
+  {
     accessorKey: "notes",
     header: () => {
       return <span>Notes</span>;

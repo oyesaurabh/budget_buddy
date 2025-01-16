@@ -3,6 +3,7 @@ import { validateAccountOwnership, withErrorHandling } from "@/utils";
 import { transactionSchema } from "@/utils/schema";
 import { NextRequest, NextResponse } from "next/server";
 
+//this is for csv upload
 const bulkTransactionCreate = async (request: NextRequest) => {
   const sessionHeader = request.headers.get("x-user-session");
   if (!sessionHeader) {
@@ -12,7 +13,7 @@ const bulkTransactionCreate = async (request: NextRequest) => {
 
   // Parse the request body
   const body = await request.json();
-  const { accountId, amount, date, categoryId, payee, notes } =
+  const { accountId, amount, date, categoryId, payee, notes, cheque_no } =
     transactionSchema.parse(body);
   if (!accountId || !amount || !date || !payee) {
     return NextResponse.json({
@@ -37,10 +38,11 @@ const bulkTransactionCreate = async (request: NextRequest) => {
     newTransaction = await prisma.transactions.create({
       data: {
         account_id: accountId,
-        amount: amount,
+        amount: amount * 100, // Convert to paisa
         date: new Date(date),
         category_id: categoryId || null,
         payee,
+        cheque_no: cheque_no || null,
         notes: notes || null,
       },
     });

@@ -153,7 +153,7 @@ const TransactionPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {accounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id}>
+                      <SelectItem key={account.id} value={account.id || ""}>
                         {account.name}
                       </SelectItem>
                     ))}

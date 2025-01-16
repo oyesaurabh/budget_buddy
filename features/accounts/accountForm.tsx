@@ -50,9 +50,33 @@ export default function AccountForm({
               <FormLabel>Account Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g. Cash, Bank etc"
+                  placeholder="e.g. ICICI, Kotak etc"
                   disabled={disabled}
                   {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="balance"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Balance</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="0.00"
+                  disabled={disabled}
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) =>
+                    field.onChange(parseFloat(e.target.value) || 0)
+                  }
+                  min="0"
+                  step="any"
                 />
               </FormControl>
               <FormMessage />
