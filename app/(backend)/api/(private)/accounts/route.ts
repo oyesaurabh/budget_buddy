@@ -15,12 +15,18 @@ async function getAccounts(request: NextRequest) {
   try {
     data = await prisma.accounts.findMany({
       where: { user_id: userId },
-      select: { name: true, id: true },
+      select: { name: true, id: true, balance: true, balance_date: true },
     });
   } catch (err) {
     throw new Error("Error while fetching accounts");
   }
-
+  //converting balance to rupees from paisa
+  data = data.map((account) => {
+    return {
+      ...account,
+      balance: account.balance / 100,
+    };
+  });
   return NextResponse.json({
     status: true,
     message: "Successfull",
@@ -29,14 +35,25 @@ async function getAccounts(request: NextRequest) {
 }
 const createAccount = async (request: NextRequest) => {
   const body = await request.json();
-  const { name } = accountSchema.parse(body);
+  let { name, balance, balance_date } = accountSchema.parse(body);
+  if (!name) {
+    return NextResponse.json(
+      {
+        status: false,
+        message: "Name is required",
+      },
+      { status: 400 }
+    );
+  }
+  balance_date = balance_date ?? new Date();
+  balance = balance ? balance * 100 : 0;
 
   //taking our userid from req header
   const sessionHeader = request.headers.get("x-user-session");
   if (!sessionHeader) {
     throw new Error("Invalid session");
   }
-  const { userId } = JSON.parse(sessionHeader);
+  const { userId: user_id } = JSON.parse(sessionHeader);
 
   //now simply save data into db
   let res;
@@ -44,7 +61,9 @@ const createAccount = async (request: NextRequest) => {
     res = await prisma.accounts.create({
       data: {
         name,
-        user_id: userId,
+        user_id,
+        balance,
+        balance_date,
       },
     });
   } catch (error) {
@@ -55,33 +74,74 @@ const createAccount = async (request: NextRequest) => {
     {
       status: true,
       message: "Account Created Successfully",
-      data: { id: res.id, name: res.name },
+      data: {
+        id: res.id,
+        name: res.name,
+        balance: res.balance / 100, // converting to rupees from paisa
+        balance_date: res.balance_date,
+      },
     },
     { status: 200 }
   );
 };
-const editAccount = async (request: NextRequest) => {
-  const { name, id } = await request.json();
-  if (!!name == false || !!id == false)
-    return NextResponse.json({
-      status: false,
-      message: "Invalid Body Params",
-    });
 
-  //updating
+type EditAccountPayload = {
+  id: string;
+  name?: string;
+  balance?: number;
+};
+export const editAccount = async (request: NextRequest) => {
   try {
+    const payload: EditAccountPayload = await request.json();
+    const { id, name, balance } = payload;
+
+    if (!id?.trim()) {
+      return NextResponse.json(
+        {
+          status: false,
+          message: "Account ID is required",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Prepare the update data based on what was provided
+    const updateData: any = {};
+    if (name !== undefined) {
+      updateData.name = name;
+    }
+
+    if (balance !== undefined) {
+      updateData.balance = balance * 100; // converting to paisa from rupees
+      updateData.balance_date = new Date();
+    }
+
+    // Only proceed with update if there's something to update
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({
+        status: false,
+        message: "No valid fields to update",
+      });
+    }
+
     await prisma.accounts.update({
       where: { id },
-      data: { name },
+      data: updateData,
     });
-  } catch (err) {
-    throw new Error("Error while updating account");
-  }
 
-  return NextResponse.json({
-    status: true,
-    message: "successfully updated",
-  });
+    return NextResponse.json({
+      status: true,
+      message: "Successfully updated account",
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        status: false,
+        message: "Error while updating account",
+      },
+      { status: 500 }
+    );
+  }
 };
 export const GET = withErrorHandling(getAccounts);
 export const POST = withErrorHandling(createAccount);

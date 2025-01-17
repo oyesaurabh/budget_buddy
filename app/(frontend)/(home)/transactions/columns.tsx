@@ -39,21 +39,6 @@ export const columns: ColumnDef<responseType>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "account_name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          className="px-0"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Account
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-  },
-  {
     accessorKey: "category_name",
     header: ({ column }) => {
       return (
@@ -137,6 +122,11 @@ export const columns: ColumnDef<responseType>[] = [
         </Button>
       );
     },
+  },
+  {
+    accessorKey: "cheque_no",
+    header: () => <span>Cheque No</span>,
+    cell: ({ row }: any) => <span>{row.original.cheque_no ?? "-"}</span>,
   },
   {
     accessorKey: "notes",

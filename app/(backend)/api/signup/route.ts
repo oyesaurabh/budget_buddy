@@ -20,7 +20,14 @@ const createUser = async (request: NextRequest) => {
         email: { equals: email },
       },
     });
-    if (userExist) throw new Error("User Already Exist");
+    if (userExist)
+      return NextResponse.json(
+        {
+          status: false,
+          message: "User already exists",
+        },
+        { status: 404 }
+      );
   } catch (error) {
     throw new Error("Error while fetching user");
   }

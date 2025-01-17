@@ -27,7 +27,7 @@ import { Trash } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  data: any[];
   filterKey?: string;
   onDelete?: (data: any) => void;
 }

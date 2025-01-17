@@ -64,10 +64,10 @@ export default function Navigation() {
             <SheetTitle>Choose Option</SheetTitle>
           </SheetHeader>
           <div className="flex flex-col gap-y-2 pt-8">
-            {routes.map((route, index) => {
+            {routes.map((route) => {
               return (
                 <Button
-                  key={index}
+                  key={route.href}
                   variant={route.href == pathname ? "secondary" : "ghost"}
                   className="w-full justify-start"
                   onClick={() => onClick(route.href)}
@@ -83,11 +83,11 @@ export default function Navigation() {
   }
   return (
     <nav className="hidden lg:flex items-center gap-x-2 overflow-x-auto">
-      {routes.map((route, index) => {
+      {routes.map((route) => {
         return (
           <Link href={route.href}>
             <Button
-              key={index}
+              key={route.href}
               variant="ghost"
               className={cn(
                 "w-full lg:w-auto justify-between font-medium text-white border-none hover:bg-white/10 hover:text-white",

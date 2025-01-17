@@ -18,7 +18,14 @@ export const loginUser = async (request: NextRequest) => {
     user = await prisma.users.findFirst({
       where: { email },
     });
-    if (!user) throw new Error("No User Found");
+    if (!user)
+      return NextResponse.json(
+        {
+          status: false,
+          message: "No user found",
+        },
+        { status: 404 }
+      );
   } catch (error) {
     throw new Error("Error while fetching user");
   }

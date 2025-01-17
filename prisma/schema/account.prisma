@@ -3,6 +3,7 @@ model accounts {
     name         String
     user_id      String
     user         users          @relation(fields: [user_id], references: [id])
-    plaid_id     String?
+    balance      Int            @default(0) //will store in paisa instead of rupees to avoid floating point errors
+    balance_date DateTime       @default(now())
     transactions transactions[]
 }

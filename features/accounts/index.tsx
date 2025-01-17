@@ -23,7 +23,7 @@ const NewAccountSheet = () => {
     setIsDisabled(true);
     try {
       let success = false;
-      if (!!values) success = await editAccount({ ...values, name: v.name });
+      if (!!values) success = await editAccount({ ...values, ...v });
       else success = await createAccount(v);
       if (success) {
         onClose();
@@ -63,7 +63,7 @@ const NewAccountSheet = () => {
           onSubmit={onSubmit}
           onDelete={onDelete}
           disabled={isDisabled}
-          defaultValues={{ name: values.name ?? "" }}
+          defaultValues={{ name: values.name ?? "", balance: values.balance }}
         />
       </SheetContent>
     </Sheet>

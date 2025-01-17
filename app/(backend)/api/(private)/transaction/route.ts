@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { withErrorHandling, validateAccountOwnership } from "@/utils";
 import prisma from "@/lib/db";
 import { Prisma } from "@prisma/client";
+import { transactionSchema } from "@/utils/schema";
+import { z } from "zod";
+type Transaction = z.infer<typeof transactionSchema>;
 
 const getTransactions = async (request: NextRequest) => {
   const sessionHeader = request.headers.get("x-user-session");
@@ -42,7 +45,7 @@ const getTransactions = async (request: NextRequest) => {
   const endDate = finalEndDate.toISOString().slice(0, 10);
 
   try {
-    const response = await prisma.$queryRaw`
+    let response: Transaction[] = await prisma.$queryRaw`
       SELECT 
         t.id, 
         cat.name AS category_name, 
@@ -52,7 +55,8 @@ const getTransactions = async (request: NextRequest) => {
         t.notes, 
         ac.name AS account_name, 
         t.account_id as "accountId",
-        t.date
+        t.date,
+        t.cheque_no
       FROM transactions t 
       JOIN accounts ac ON ac.id = t.account_id
       LEFT JOIN categories cat ON cat.id = t.category_id
@@ -63,6 +67,14 @@ const getTransactions = async (request: NextRequest) => {
         }
       ORDER BY t.date DESC
     `;
+
+    //converting amount from paisa to rupees
+    response = response?.map((transaction: Transaction) => {
+      return {
+        ...transaction,
+        amount: transaction?.amount / 100,
+      };
+    });
 
     return NextResponse.json({
       status: true,
@@ -88,10 +100,11 @@ const editTransaction = async (request: NextRequest) => {
     notes,
     payee,
     date,
+    cheque_no,
     accountId: account_id,
     categoryId: category_id,
-  } = body;
-  const parsedAmount = parseInt(amount, 10);
+  }: Transaction = body;
+  const parsedAmount = amount * 100; //converting amount from rupees to paisa
   if (isNaN(parsedAmount)) {
     throw new Error("Invalid amount");
   }
@@ -116,6 +129,7 @@ const editTransaction = async (request: NextRequest) => {
         notes,
         payee,
         date,
+        cheque_no,
         account_id,
         category_id,
       },

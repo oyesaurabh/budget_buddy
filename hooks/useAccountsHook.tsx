@@ -1,33 +1,31 @@
-"use client";
-
+import { z } from "zod";
 import { create } from "zustand";
-import { axiosService } from "@/services";
 import { toast } from "sonner";
+import { axiosService } from "@/services";
+import { accountSchema } from "@/utils/schema";
 
-//all the data related to accounts
-interface Account {
-  id: string;
-  name: string;
-}
-interface CreateAccountValues {
-  name: string;
-}
+// Infer the type of the account schema
+type Account = z.infer<typeof accountSchema>;
+
 interface AccountStore {
-  accounts: Account[]; // array of all accounts
-  currentAccount: Account | null; //curr acc. selected by user
-  isAccountLoading: boolean; //loading when acc. data is being fetched
-  error: string | null; // error message if any
+  accounts: Array<Account>; // Array of all accounts
+  currentAccount: Account | null; // Currently selected account
+  isAccountLoading: boolean; // Loading state
+  error: string | null; // Error message
   setCurrentAccount: (acc: Account | null) => void;
   fetchAccounts: () => Promise<void>;
   deleteAccounts: (ids: string[]) => Promise<boolean>;
-  createAccount: (values: CreateAccountValues) => Promise<boolean>;
+  createAccount: (values: Account) => Promise<boolean>;
   editAccount: (values: Account) => Promise<boolean>;
 }
+
 export const useAccountStore = create<AccountStore>((set) => ({
   accounts: [],
   currentAccount: (() => {
+    if (typeof window === "undefined") return null; // Skip if SSR
+
     const savedAccount = localStorage.getItem("currentAccount");
-    return savedAccount ? JSON.parse(savedAccount) : null;
+    return savedAccount ? (JSON.parse(savedAccount) as Account) : null;
   })(),
   isAccountLoading: true,
   error: null,
@@ -54,7 +52,6 @@ export const useAccountStore = create<AccountStore>((set) => ({
 
       set({ accounts: data, isAccountLoading: false });
 
-      //if current account is not set, set the first account as current account
       if (!useAccountStore.getState().currentAccount && data.length > 0) {
         useAccountStore.getState().setCurrentAccount(data[0]);
       }
@@ -76,7 +73,9 @@ export const useAccountStore = create<AccountStore>((set) => ({
       }
 
       set((state) => ({
-        accounts: state.accounts.filter((account) => !ids.includes(account.id)),
+        accounts: state.accounts.filter(
+          (account) => !ids.includes(account.id ?? "")
+        ),
       }));
 
       toast.success(message ?? "Accounts deleted successfully");
@@ -89,7 +88,7 @@ export const useAccountStore = create<AccountStore>((set) => ({
     }
   },
 
-  createAccount: async (values: CreateAccountValues) => {
+  createAccount: async (values: Account) => {
     try {
       const response = await axiosService.createNewAccount(values);
       const { status, data, message } = response ?? {};
@@ -124,14 +123,14 @@ export const useAccountStore = create<AccountStore>((set) => ({
 
       set((state) => ({
         accounts: state.accounts.map((item) =>
-          item.id == values.id ? { ...item, name: values.name } : item
+          item.id === values.id ? { ...item, ...values } : item
         ),
       }));
       toast.success(message ?? "Account Updated");
       return true;
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Error while creating account";
+        err instanceof Error ? err.message : "Error while updating account";
       toast.error(errorMessage);
       return false;
     }

@@ -11,6 +11,7 @@ import { useNewAccount } from "@/hooks/useAccountsHook";
 export type responseType = {
   id: string;
   name: string;
+  balance: number;
 };
 
 export const columns: ColumnDef<responseType>[] = [
@@ -48,6 +49,36 @@ export const columns: ColumnDef<responseType>[] = [
           Account Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "balance",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          className="px-0"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Balance
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }: any) => {
+      const celldata = row.original.balance;
+
+      const formattedAmount = new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        minimumFractionDigits: 2,
+      }).format(celldata);
+
+      return (
+        <span className={`${celldata < 0 ? "text-red-400" : "text-green-400"}`}>
+          {formattedAmount}
+        </span>
       );
     },
   },

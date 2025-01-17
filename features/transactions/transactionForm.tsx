@@ -95,7 +95,7 @@ export default function TransactionForm({
                   </SelectTrigger>
                   <SelectContent>
                     {accounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id}>
+                      <SelectItem key={account.id} value={account.id ?? ""}>
                         {account.name}
                       </SelectItem>
                     ))}
@@ -111,8 +111,8 @@ export default function TransactionForm({
           name="categoryId"
           control={form.control}
           render={({ field }) => (
-            <FormItem className="flex items-center gap-4">
-              <FormControl className="flex-1">
+            <FormItem className="flex items-center gap-d5">
+              <FormControl className="flex-2">
                 <Select
                   defaultValue={field.value ?? ""}
                   onValueChange={field.onChange}
@@ -172,6 +172,31 @@ export default function TransactionForm({
                   placeholder="Enter amount"
                   disabled={disabled}
                   {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numberValue = value ? Number(value) : undefined;
+                    field.onChange(numberValue);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          name="cheque_no"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem className="flex items-center gap-4">
+              <FormLabel className="min-w-24">
+                Cheque No. <i>(optional)</i>
+              </FormLabel>
+              <FormControl className="flex-1">
+                <Input
+                  placeholder="Enter Cheque Number"
+                  disabled={disabled}
+                  {...{ ...field, value: field.value ?? "" }}
                 />
               </FormControl>
               <FormMessage />

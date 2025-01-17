@@ -3,7 +3,8 @@ import { validateAccountOwnership, withErrorHandling } from "@/utils";
 import { transactionSchema } from "@/utils/schema";
 import { NextRequest, NextResponse } from "next/server";
 
-const createTransactions = async (request: NextRequest) => {
+//this is for csv upload
+const bulkTransactionCreate = async (request: NextRequest) => {
   const sessionHeader = request.headers.get("x-user-session");
   if (!sessionHeader) {
     throw new Error("Invalid session");
@@ -56,4 +57,4 @@ const createTransactions = async (request: NextRequest) => {
   });
 };
 
-export const POST = withErrorHandling(createTransactions);
+export const POST = withErrorHandling(bulkTransactionCreate);
