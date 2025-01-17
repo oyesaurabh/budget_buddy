@@ -60,11 +60,10 @@ const getTransactions = async (request: NextRequest) => {
       FROM transactions t 
       JOIN accounts ac ON ac.id = t.account_id
       LEFT JOIN categories cat ON cat.id = t.category_id
-      WHERE t.date BETWEEN ${startDate}::timestamp AND ${endDate}::timestamp 
+      WHERE t.date >= ${startDate}::date 
+        AND t.date < (${endDate}::date + interval '1 day')
         AND ac.user_id = ${userId}
-        ${
-          accountId ? Prisma.sql`AND t.account_id = ${accountId}` : Prisma.empty
-        }
+        AND t.account_id=${accountId}
       ORDER BY t.date DESC
     `;
 
