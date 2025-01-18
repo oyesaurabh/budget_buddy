@@ -130,7 +130,7 @@ const bulkTransactionCreate = async (request: NextRequest) => {
         key = `${transaction.accountId}-${transaction.cheque_no}`;
       } else {
         // For transactions without cheque numbers, create a composite key
-        key = `${transaction.accountId}-${transaction.amount}-${transaction.date}-${transaction.payee}`;
+        key = `${transaction.accountId}-${transaction.amount}-${transaction.date}`;
       }
       // Only keep the first occurrence
       if (!uniqueTransactions.has(key)) {

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withErrorHandling, validateAccountOwnership } from "@/utils";
 import prisma from "@/lib/db";
-import { Prisma } from "@prisma/client";
 import { transactionSchema } from "@/utils/schema";
 import { z } from "zod";
 type Transaction = z.infer<typeof transactionSchema>;

@@ -53,8 +53,6 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
   // Available fields to map to
   const availableFields = {
     date: "Date",
-    amount: "Amount",
-    payee: "Payee",
     notes: "Notes",
     cheque_no: "Cheque No.",
     debit: "Debit",

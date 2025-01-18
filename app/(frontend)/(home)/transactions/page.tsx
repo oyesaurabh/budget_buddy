@@ -17,12 +17,13 @@ import { columns } from "./columns";
 import { axiosService } from "@/services";
 import { useAccountStore } from "@/hooks/useAccountsHook";
 import NewTransactionSheet from "@/features/transactions";
-import { useNewTransaction } from "@/hooks/useTransactionHook";
+import { useNewTransaction } from "@/stores/useTransactionStore";
 
 import CSVUpload from "./components/CSVUpload";
+import { useDatePickerStore } from "@/stores/useDatepickerStore";
 
 const TransactionPage = () => {
-  //account options hook
+  //hooks
   const {
     error,
     accounts,
@@ -30,7 +31,9 @@ const TransactionPage = () => {
     currentAccount,
     setCurrentAccount,
   } = useAccountStore();
+  const { getFormattedRange } = useDatePickerStore();
   const { onOpen, setValues } = useNewTransaction();
+
   const [Transactions, setTransactions] = useState([]);
   const [isLoadingTransaction, setIsLoadingTransaction] = useState(false);
   const [CSVUploadModal, setCSVUploadModal] = useState(false);
@@ -45,7 +48,7 @@ const TransactionPage = () => {
     try {
       setIsLoadingTransaction(true);
       const { status, data, message } = await axiosService.getTransactions(
-        JSON.stringify(payload)
+        JSON.stringify({ ...payload, ...getFormattedRange() })
       );
 
       if (!status) {
