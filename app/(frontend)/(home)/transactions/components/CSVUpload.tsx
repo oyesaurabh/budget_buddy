@@ -16,6 +16,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAccountStore } from "@/hooks/useAccountsHook";
+import { cn } from "@/lib/utils";
+import { useCategoryStore } from "@/hooks/useCategoryHook";
+import { Input } from "@/components/ui/input";
+import { transactionSchema } from "@/utils/schema";
+import { axiosService } from "@/services";
+import { toast } from "sonner";
+
+import { z } from "zod";
+type transaction = z.input<typeof transactionSchema>;
 
 interface CSVUploadProps {
   open: boolean;
@@ -25,6 +34,7 @@ interface CSVUploadProps {
 const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
   const { error, accounts, currentAccount, setCurrentAccount } =
     useAccountStore();
+  const { Categories } = useCategoryStore();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [csvData, setCSVData] = useState<{
@@ -35,17 +45,19 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
   const [columnMappings, setColumnMappings] = useState<Record<string, string>>(
     {}
   );
+  const [rowCategories, setRowCategories] = useState<{ [key: string]: string }>(
+    {}
+  );
+  const [rowPayees, setRowPayees] = useState<{ [key: string]: string }>({});
 
   // Available fields to map to
-  const availableFields = [
-    "Date",
-    "Amount",
-    "Payee",
-    "Notes",
-    "Cheque No.",
-    "Debit",
-    "Credit",
-  ];
+  const availableFields = {
+    date: "Date",
+    notes: "Notes",
+    cheque_no: "Cheque No.",
+    debit: "Debit",
+    credit: "Credit",
+  };
 
   const handleFileSelect = async (selectedFile: File) => {
     if (selectedFile?.type === "text/csv") {
@@ -73,99 +85,75 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
       ...prev,
       [csvColumn]: mappedField,
     }));
-    console.log("columnMappings:", columnMappings);
-    console.log("CSVData:", csvData);
+  };
+  const handleCategoryChange = (rowIndex: number, value: string) => {
+    setRowCategories((prev) => ({
+      ...prev,
+      [rowIndex]: value,
+    }));
   };
 
-  //upload logic
-  interface TransactionData {
-    accountId: string;
-    transactions: {
-      amount: number;
-      date: string;
-      payee: string;
-      notes: string;
-      chequeNo?: string;
-    }[];
-  }
-
-  const transformCSVToTransactions = (
-    csvData: { headers: string[]; rows: string[][] },
-    accountId: string
-  ): TransactionData => {
-    // Skip the header row (index 0) and start from actual data (index 1)
-    const transactions = csvData.rows.slice(1).map((row) => {
-      // Create an object from the row data
-      const rowData = csvData.headers.reduce((acc, header, index) => {
-        acc[header] = row[index];
-        return acc;
-      }, {} as Record<string, string>);
-
-      // Parse the date (assuming format "DD-MM-YYYY HH:mm:ss")
-      const dateString = rowData["Txn Date"].split(" ")[0]; // Get just the date part
-      const [day, month, year] = dateString.split("-");
-      const formattedDate = `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
-
-      // Calculate amount (positive for Credit, negative for Debit)
-      let amount = 0;
-      if (rowData["Credit"]) {
-        amount = parseFloat(rowData["Credit"].replace(/,/g, ""));
-      } else if (rowData["Debit"]) {
-        amount = -parseFloat(rowData["Debit"].replace(/,/g, ""));
-      }
-
-      // Extract payee from Description
-      // Assuming UPI format: UPI/DR|CR/{id}/{payee name}/{bank}/**{other details}
-      let payee = "Unknown";
-      const description = rowData["Description"];
-      if (description.startsWith("UPI")) {
-        const parts = description.split("/");
-        if (parts.length >= 4) {
-          payee = parts[3];
-        }
-      } else if (description.startsWith("NEFT")) {
-        // Handle NEFT format
-        const parts = description.split("-");
-        if (parts.length >= 4) {
-          payee = parts[3];
-        }
-      }
-
-      return {
-        amount: amount,
-        date: formattedDate,
-        payee: payee,
-        notes: rowData["Description"],
-        ...(rowData["Cheque No."] && { chequeNo: rowData["Cheque No."] }),
-      };
-    });
-
-    return {
-      accountId,
-      transactions: transactions.filter((t) => t.amount !== 0), // Remove any transactions with 0 amount
-    };
+  const handlePayeeChange = (rowIndex: number, value: string) => {
+    setRowPayees((prev) => ({
+      ...prev,
+      [rowIndex]: value,
+    }));
   };
+
   const handleUpload = async () => {
     if (!file) return;
     try {
       setLoading(true);
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          transformCSVToTransactions(csvData, currentAccount?.id || "");
-          resolve("");
-        }, 2000);
-      });
-      console.log("data:", csvData);
+      const payload = prepareDataForPayload();
+      const response = await axiosService.createBulkTransaction(payload);
+      const { status, message } = response ?? {};
+      if (!status) throw new Error(message ?? "Error while Bulk Upload");
+      toast.success("Uploaded");
       onOpenChange(false);
-      setShowMapper(false);
+    } catch (error: any) {
+      toast.error(error?.message || "Something went wrong");
+      console.error(error);
     } finally {
+      setShowMapper(false);
       setLoading(false);
       setFile(null);
       setCSVData({ headers: [], rows: [] });
       setColumnMappings({});
+      setRowCategories({});
+      setRowPayees({});
     }
   };
 
+  const prepareDataForPayload = (): transaction[] => {
+    /* accountId,amount,categoryId,cheque_no,date,notes,payee */
+    const { headers, rows } = csvData;
+    const transactions: transaction[] = [];
+    rows.slice(1).forEach((trans, ind) => {
+      const obj: any = {};
+      headers.forEach((h, i) => {
+        if (!columnMappings[h] || !trans[i]) return;
+
+        let key = columnMappings[h];
+        let value: string | number = trans[i];
+        if (key == "debit" || key == "credit") {
+          value =
+            parseFloat(value.split(",").join("")) * (key == "debit" ? -1 : 1);
+          key = "amount";
+        }
+        obj[key] = value;
+      });
+      obj["accountId"] = currentAccount?.id;
+      if (rowCategories[ind]) obj["categoryId"] = rowCategories[ind];
+      obj["payee"] =
+        rowPayees[ind] ??
+        extractNoteOrName(
+          trans[headers.findIndex((header) => header === "Description")]
+        );
+
+      transactions.push(obj);
+    });
+    return transactions;
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -204,7 +192,7 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((account) => (
-                  <SelectItem key={account.id} value={account.id}>
+                  <SelectItem key={account.id} value={account.id ?? ""}>
                     {account.name}
                   </SelectItem>
                 ))}
@@ -266,26 +254,63 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
                       >
                         <div className="space-y-1">
                           <Select
-                            value={columnMappings[header] || ""}
+                            value={columnMappings[header] || "unselect"}
                             onValueChange={(value) =>
                               handleColumnMap(header, value)
                             }
                           >
-                            <SelectTrigger className="w-[150px] dark:border-gray-700">
+                            <SelectTrigger
+                              className={cn(
+                                "w-[180px]",
+                                columnMappings[header] &&
+                                  columnMappings[header] !== "unselect"
+                                  ? "border-green-500 ring-1 ring-green-500/20"
+                                  : "hover:border-gray-400"
+                              )}
+                            >
                               <SelectValue placeholder="Select field" />
                             </SelectTrigger>
                             <SelectContent>
-                              {availableFields.map((field) => (
-                                <SelectItem key={field} value={field}>
-                                  {field}
-                                </SelectItem>
-                              ))}
+                              <SelectItem value="unselect">
+                                -- Unselect --
+                              </SelectItem>
+                              {Object.entries(availableFields).map(
+                                ([key, value]) => {
+                                  const selectedFields =
+                                    Object.values(columnMappings);
+                                  const isSelected =
+                                    selectedFields.includes(key);
+                                  const isCurrentField =
+                                    columnMappings[header] === key;
+
+                                  if (!isSelected || isCurrentField) {
+                                    return (
+                                      <SelectItem key={key} value={key}>
+                                        {value}
+                                      </SelectItem>
+                                    );
+                                  }
+                                  return null;
+                                }
+                              )}
                             </SelectContent>
                           </Select>
                           <p className="text-xs font-normal">{header}</p>
                         </div>
                       </th>
                     ))}
+                    <th
+                      className="px-4 py-2 text-left text-sm font-medium text-gray-500 "
+                      key={"category"}
+                    >
+                      <p className="text-xs font-normal w-[150px]">Category</p>
+                    </th>
+                    <th
+                      className="px-4 py-2 text-left text-sm font-medium text-gray-500"
+                      key={"payee"}
+                    >
+                      <p className="text-xs font-normal w-[150px]">Payee</p>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -296,6 +321,40 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
                           {cell}
                         </td>
                       ))}
+                      <td className="px-4 py-2 text-sm">
+                        <Select
+                          value={rowCategories[i] || "unselect"}
+                          onValueChange={(value) =>
+                            handleCategoryChange(i, value)
+                          }
+                        >
+                          <SelectTrigger className={cn("w-[180px]")}>
+                            <SelectValue placeholder="Select field" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="unselect">
+                              -- Select Category --
+                            </SelectItem>
+                            {Categories.map(({ name, id }) => {
+                              return (
+                                <SelectItem key={id} value={id}>
+                                  {name}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="px-4 py-2 text-sm">
+                        <Input
+                          className="w-[180px]"
+                          placeholder="Enter payee"
+                          value={
+                            rowPayees[i] || extractNoteOrName(row[3]) || ""
+                          }
+                          onChange={(e) => handlePayeeChange(i, e.target.value)}
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -382,3 +441,22 @@ const parseCSV = (content: string) => {
 
   return { headers, rows };
 };
+function extractNoteOrName(input: string): string {
+  const cleanstring = input.replace(/\s+/g, " ").trim();
+  if (cleanstring.startsWith("UPI")) {
+    const parts = cleanstring.split("/");
+    if (parts.length < 4) {
+      return "";
+    }
+
+    let message = "";
+    if (parts[6]) {
+      message = parts[6].split("//")[0];
+    }
+    return message.length ? message : parts[3];
+  } else if (cleanstring.startsWith("NEFT")) {
+    const parts = cleanstring.split("-");
+    return parts?.slice(3)?.join("-") ?? "";
+  }
+  return "UNKNOWN";
+}

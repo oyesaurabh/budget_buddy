@@ -80,6 +80,11 @@ class AxiosService {
       this.api.post("/api/transaction/create", payload)
     );
   }
+  createBulkTransaction(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/transaction/bulk-create", payload)
+    );
+  }
   editTransaction(payload: any): Promise<any> {
     return handleApiCall(() => this.api.patch("/api/transaction", payload));
   }

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withErrorHandling, validateAccountOwnership } from "@/utils";
 import prisma from "@/lib/db";
-import { Prisma } from "@prisma/client";
 import { transactionSchema } from "@/utils/schema";
 import { z } from "zod";
 type Transaction = z.infer<typeof transactionSchema>;
@@ -60,11 +59,10 @@ const getTransactions = async (request: NextRequest) => {
       FROM transactions t 
       JOIN accounts ac ON ac.id = t.account_id
       LEFT JOIN categories cat ON cat.id = t.category_id
-      WHERE t.date BETWEEN ${startDate}::timestamp AND ${endDate}::timestamp 
+      WHERE t.date >= ${startDate}::date 
+        AND t.date < (${endDate}::date + interval '1 day')
         AND ac.user_id = ${userId}
-        ${
-          accountId ? Prisma.sql`AND t.account_id = ${accountId}` : Prisma.empty
-        }
+        AND t.account_id=${accountId}
       ORDER BY t.date DESC
     `;
 

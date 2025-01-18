@@ -6,7 +6,7 @@ import { ArrowUpDown, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { useNewTransaction } from "@/hooks/useTransactionHook";
+import { useNewTransaction } from "@/stores/useTransactionStore";
 import { convertTimestamp } from "@/utils/math";
 
 export type responseType = {

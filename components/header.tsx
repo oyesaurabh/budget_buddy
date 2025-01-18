@@ -4,6 +4,7 @@ import Navigation from "./navigation";
 import WelcomeMessage from "./welcome-msg";
 import { DarkmodeToggle } from "./darkmode-toggle";
 import LogoutButton from "./logout-btn";
+import UseDateRangePicker from "./date-range-picker";
 
 export default function Header() {
   return (
@@ -17,6 +18,7 @@ export default function Header() {
             </div>
             <div>
               <div className="flex gap-2">
+                <UseDateRangePicker />
                 <DarkmodeToggle />
                 <LogoutButton />
               </div>

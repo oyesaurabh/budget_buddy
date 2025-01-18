@@ -11,7 +11,7 @@ import TransactionForm from "./transactionForm";
 import { transactionSchema } from "@/utils/schema";
 import { toast } from "sonner";
 import { useState } from "react";
-import { useNewTransaction } from "@/hooks/useTransactionHook";
+import { useNewTransaction } from "@/stores/useTransactionStore";
 import { axiosService } from "@/services";
 
 type formValues = z.input<typeof transactionSchema>;
