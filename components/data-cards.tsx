@@ -11,7 +11,7 @@ import {
 
 type props = {
   title: string;
-  dateRange: string;
+  dateRange?: string;
   value?: number;
   percentageChange?: number;
   Icon: IconType;
@@ -29,12 +29,12 @@ export const DataCards = ({
         <div className="space-y-2">
           <CardTitle className="text-2xl line-clamp-1">{title}</CardTitle>
           <CardDescription className="line-clamp-1">
-            {format(
-              new Date(new Date().setDate(new Date().getDate() - 30)),
-              "dd MMM"
-            )}
-            {" - "}
-            {format(new Date(), "dd MMM, yyyy")}
+            {dateRange
+              ? dateRange
+              : `${format(
+                  new Date().setDate(new Date().getDate() - 30),
+                  "dd MMM"
+                )} - ${format(new Date(), "dd MMM, yyyy")}`}
           </CardDescription>
         </div>
         <div className="shrink-0">
