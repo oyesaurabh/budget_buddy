@@ -12,6 +12,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { MdOutlineAccountBalance } from "react-icons/md";
 export default function Header() {
   const {
     error,
@@ -50,22 +51,28 @@ export default function Header() {
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </Select>
           ) : (
-            <Select
-              disabled={!!error}
-              value={currentAccount?.id || ""}
-              onValueChange={handleAccountChange}
-            >
-              <SelectTrigger className="w-[150px]">
-                {currentAccount ? currentAccount.name : "Select an account"}
-              </SelectTrigger>
-              <SelectContent>
-                {accounts.map((account) => (
-                  <SelectItem key={account.id} value={account.id || ""}>
-                    {account.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2 mt-2 justify-start">
+              <MdOutlineAccountBalance
+                style={{ fontSize: "23px" }}
+                className="text-white"
+              />
+              <Select
+                disabled={!!error}
+                value={currentAccount?.id || ""}
+                onValueChange={handleAccountChange}
+              >
+                <SelectTrigger className="max-w-[150px] h-9 rounded-md px-3 font-normal bg-white/10 hover:bg-white/20 hover:text-white border-none focus:ring-offset-0 focus:ring-transparent outline-none text-white focus:bg-white/30 transition">
+                  {currentAccount ? currentAccount.name : "Select an account"}
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id || ""}>
+                      {account.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           )}
         </div>
       </header>
