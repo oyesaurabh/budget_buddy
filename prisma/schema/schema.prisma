@@ -7,10 +7,3 @@ generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["prismaSchemaFolder"]
 }
-
-/**
- * users have many accounts.
- * accounts have many categories and transactions.
- * categories belong to an account and can have many transactions.
- * transactions belong to an account and optionally to a category.
- */
