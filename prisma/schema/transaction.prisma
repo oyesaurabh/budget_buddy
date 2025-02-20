@@ -10,6 +10,9 @@ model transactions {
     account     accounts    @relation(fields: [account_id], references: [id], onDelete: Cascade)
     category    categories? @relation(fields: [category_id], references: [id], onDelete: SetNull)
 
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
     @@index([account_id])
     @@index([category_id])
 }
