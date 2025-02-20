@@ -4,12 +4,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, PlusIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 
@@ -21,16 +15,11 @@ import { useNewTransaction } from "@/stores/useTransactionStore";
 
 import CSVUpload from "./components/CSVUpload";
 import { useDatePickerStore } from "@/stores/useDatepickerStore";
+import UseDateRangePicker from "@/components/date-range-picker";
 
 const TransactionPage = () => {
   //hooks
-  const {
-    error,
-    accounts,
-    isAccountLoading,
-    currentAccount,
-    setCurrentAccount,
-  } = useAccountStore();
+  const { currentAccount } = useAccountStore();
   const { getFormattedRange } = useDatePickerStore();
   const { onOpen, setValues } = useNewTransaction();
 
@@ -62,14 +51,6 @@ const TransactionPage = () => {
       toast.error(errorMessage);
     } finally {
       setIsLoadingTransaction(false);
-    }
-  };
-
-  //this will handle account change from select dropdown
-  const handleAccountChange = (value: any) => {
-    const selectedAccount = accounts.find((acc) => acc.id === value);
-    if (selectedAccount) {
-      setCurrentAccount(selectedAccount);
     }
   };
 
@@ -141,28 +122,7 @@ const TransactionPage = () => {
                 <PlusIcon className="mr-2 h-4 w-4" />
                 Add New
               </Button>
-              {isAccountLoading ? (
-                <Select>
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </Select>
-              ) : (
-                <Select
-                  disabled={!!error}
-                  value={currentAccount?.id || ""}
-                  onValueChange={handleAccountChange}
-                >
-                  <SelectTrigger className="min-w-[150px]">
-                    {currentAccount ? currentAccount.name : "Select an account"}
-                  </SelectTrigger>
-                  <SelectContent>
-                    {accounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id || ""}>
-                        {account.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              <UseDateRangePicker />
             </div>
           </CardHeader>
           <CardContent>{renderContent()}</CardContent>
