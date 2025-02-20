@@ -170,6 +170,9 @@ export default function AreaVariant() {
             <SelectItem value="90d" className="rounded-lg">
               Last 3 months
             </SelectItem>
+            <SelectItem value="40d" className="rounded-lg">
+              This month
+            </SelectItem>
             <SelectItem value="30d" className="rounded-lg">
               Last 30 days
             </SelectItem>

@@ -29,7 +29,9 @@ const TransactionPage = () => {
 
   useEffect(() => {
     if (!currentAccount?.id) return;
-    fetchTransactions({ accountId: currentAccount?.id });
+    fetchTransactions({
+      accountId: currentAccount?.id,
+    });
   }, [currentAccount]);
 
   //this will fetch transactions

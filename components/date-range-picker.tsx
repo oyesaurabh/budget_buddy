@@ -2,7 +2,6 @@
 
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -14,11 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { useDatePickerStore } from "@/stores/useDatepickerStore";
 
-type DatePickerWithRangeProps = {
-  numberOfMonths?: number;
-};
-
-function DatePickerWithRange({ numberOfMonths = 2 }: DatePickerWithRangeProps) {
+function DatePickerWithRange() {
   const { dateRange, setDateRange } = useDatePickerStore();
 
   return (
@@ -38,7 +33,7 @@ function DatePickerWithRange({ numberOfMonths = 2 }: DatePickerWithRangeProps) {
             {dateRange?.from ? (
               dateRange.to ? (
                 <>
-                  {format(dateRange.from, "LLL dd, y")} -{" "}
+                  {format(dateRange.from, "LLL dd")} -{" "}
                   {format(dateRange.to, "LLL dd, y")}
                 </>
               ) : (
@@ -56,7 +51,7 @@ function DatePickerWithRange({ numberOfMonths = 2 }: DatePickerWithRangeProps) {
             defaultMonth={dateRange?.from}
             selected={dateRange}
             onSelect={setDateRange}
-            numberOfMonths={numberOfMonths}
+            numberOfMonths={2}
           />
         </PopoverContent>
       </Popover>
