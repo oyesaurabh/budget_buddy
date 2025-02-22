@@ -34,7 +34,9 @@ export const useAccountStore = create<AccountStore>((set) => ({
     localStorage.setItem("currentAccount", JSON.stringify(acc));
     set({ currentAccount: acc });
   },
-
+  removeCurrentAccountFromLocalStorage: () => {
+    localStorage.removeItem("currentAccount");
+  },
   fetchAccounts: async () => {
     try {
       set({ isAccountLoading: true, error: null });

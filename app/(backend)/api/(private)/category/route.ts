@@ -1,20 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
 import { withErrorHandling } from "@/utils";
-import { categorySchema } from "@/utils/schema";
+import prisma from "@/lib/db";
 
 async function getCategories(request: NextRequest) {
-  const sessionHeader = request.headers.get("x-user-session");
-  if (!sessionHeader) {
-    throw new Error("Invalid session");
-  }
-  const { userId } = JSON.parse(sessionHeader);
+  const { searchParams } = new URL(request.url);
+  const account_id = searchParams.get("account_id") ?? "";
 
   //getting all the accounts data of user.
   let data;
   try {
     data = await prisma.categories.findMany({
-      where: { user_id: userId },
+      where: { account_id },
       select: { name: true, id: true },
     });
   } catch (error) {
@@ -29,14 +25,7 @@ async function getCategories(request: NextRequest) {
 }
 const createCategory = async (request: NextRequest) => {
   const body = await request.json();
-  const { name } = categorySchema.parse(body);
-
-  //taking our userid from req header
-  const sessionHeader = request.headers.get("x-user-session");
-  if (!sessionHeader) {
-    throw new Error("Invalid session");
-  }
-  const { userId } = JSON.parse(sessionHeader);
+  const { account_id, name } = body;
 
   //now simply save data into db
   let res;
@@ -44,7 +33,7 @@ const createCategory = async (request: NextRequest) => {
     res = await prisma.categories.create({
       data: {
         name,
-        user_id: userId,
+        account_id,
       },
     });
   } catch (error) {

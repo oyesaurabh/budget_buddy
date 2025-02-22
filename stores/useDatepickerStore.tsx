@@ -5,6 +5,7 @@ type DatePickerStore = {
   dateRange: DateRange | undefined;
   setDateRange: (range: DateRange | undefined) => void;
   getFormattedRange: () => { from: string; to: string } | null;
+  resetDateRange: () => void;
 };
 
 const getDefaultDateRange = (): DateRange => {
@@ -23,7 +24,9 @@ export const useDatePickerStore = create<DatePickerStore>((set, get) => ({
   setDateRange: (range) => {
     set({ dateRange: range });
   },
-
+  resetDateRange: () => {
+    set({ dateRange: getDefaultDateRange() });
+  },
   getFormattedRange: () => {
     const { dateRange } = get();
     if (!dateRange?.from || !dateRange?.to) return null;
