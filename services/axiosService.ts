@@ -95,6 +95,13 @@ class AxiosService {
       this.api.delete("/api/transaction", { data: payload })
     );
   }
+
+  //graphs
+  getTransactionExpenseChart(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/charts/transaction-expense-chart", payload)
+    );
+  }
 }
 
 const axiosService = new AxiosService(api);
