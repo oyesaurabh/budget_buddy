@@ -149,7 +149,11 @@ export default function AreaVariant() {
           </SelectTrigger>
           <SelectContent className="rounded-xl">
             {timeRangeConfig?.map((item) => (
-              <SelectItem value={item.key} className="rounded-lg">
+              <SelectItem
+                value={item.key}
+                className="rounded-lg"
+                key={item.key}
+              >
                 {item.value}
               </SelectItem>
             ))}
