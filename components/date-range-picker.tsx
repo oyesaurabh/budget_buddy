@@ -2,7 +2,6 @@
 
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,13 +12,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useDatePickerStore } from "@/stores/useDatepickerStore";
+import { PopoverClose } from "@radix-ui/react-popover";
 
-type DatePickerWithRangeProps = {
-  numberOfMonths?: number;
-};
-
-function DatePickerWithRange({ numberOfMonths = 2 }: DatePickerWithRangeProps) {
-  const { dateRange, setDateRange } = useDatePickerStore();
+function DatePickerWithRange({ fetchTransactions }: any) {
+  const { dateRange, setDateRange, resetDateRange } = useDatePickerStore();
 
   return (
     <div className={cn("grid gap-2")}>
@@ -38,7 +34,7 @@ function DatePickerWithRange({ numberOfMonths = 2 }: DatePickerWithRangeProps) {
             {dateRange?.from ? (
               dateRange.to ? (
                 <>
-                  {format(dateRange.from, "LLL dd, y")} -{" "}
+                  {format(dateRange.from, "LLL dd")} -{" "}
                   {format(dateRange.to, "LLL dd, y")}
                 </>
               ) : (
@@ -49,15 +45,38 @@ function DatePickerWithRange({ numberOfMonths = 2 }: DatePickerWithRangeProps) {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0" align="end">
           <Calendar
             initialFocus
             mode="range"
             defaultMonth={dateRange?.from}
             selected={dateRange}
             onSelect={setDateRange}
-            numberOfMonths={numberOfMonths}
+            numberOfMonths={2}
           />
+          <div className="w-full flex items-center bg-gray-300 dark:bg-gray-800 gap-4 p-2">
+            <PopoverClose asChild>
+              <Button
+                className="w-full"
+                variant="outline"
+                size="sm"
+                onClick={resetDateRange}
+                disabled={!dateRange?.from || !dateRange?.to}
+              >
+                Reset
+              </Button>
+            </PopoverClose>
+            <PopoverClose asChild>
+              <Button
+                className="w-full"
+                disabled={!dateRange?.from || !dateRange?.to}
+                size="sm"
+                onClick={fetchTransactions}
+              >
+                Apply
+              </Button>
+            </PopoverClose>
+          </div>
         </PopoverContent>
       </Popover>
     </div>

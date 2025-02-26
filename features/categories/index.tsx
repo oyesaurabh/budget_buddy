@@ -7,11 +7,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import CategoryForm from "./categoryForm";
-import { categorySchema } from "@/utils/schema";
-import { toast } from "sonner";
-import { useState } from "react";
 import { useCategoryStore, useNewCategory } from "@/hooks/useCategoryHook";
+import { useAccountStore } from "@/hooks/useAccountsHook";
+import { categorySchema } from "@/utils/schema";
+import CategoryForm from "./categoryForm";
+import { useState } from "react";
+import { toast } from "sonner";
 type formValues = z.input<typeof categorySchema>;
 
 const NewCategorySheet = () => {
@@ -19,12 +20,18 @@ const NewCategorySheet = () => {
   const [isDisabled, setIsDisabled] = useState(false);
   const { createCategory, deleteCategories, editCategory } = useCategoryStore();
 
+  const { currentAccount } = useAccountStore();
+
   const onSubmit = async (v: formValues) => {
     setIsDisabled(true);
     try {
       let success = false;
       if (!!values) success = await editCategory({ ...values, name: v.name });
-      else success = await createCategory(v);
+      else
+        success = await createCategory({
+          ...v,
+          account_id: currentAccount?.id ?? "",
+        });
       if (success) {
         onClose();
       }

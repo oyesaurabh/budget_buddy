@@ -5,56 +5,28 @@ type DatePickerStore = {
   dateRange: DateRange | undefined;
   setDateRange: (range: DateRange | undefined) => void;
   getFormattedRange: () => { from: string; to: string } | null;
+  resetDateRange: () => void;
 };
 
 const getDefaultDateRange = (): DateRange => {
   const today = new Date();
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(today.getDate() - 30);
+  const from = new Date(today.getFullYear(), today.getMonth() - 1, 1);
 
   return {
-    from: thirtyDaysAgo,
+    from,
     to: today,
   };
 };
 
-// Get stored date range from localStorage
-const getStoredDateRange = (): DateRange | undefined => {
-  const stored = localStorage.getItem("dateRange");
-  if (!stored) return undefined;
-
-  try {
-    const parsed = JSON.parse(stored);
-    return {
-      from: new Date(parsed.from),
-      to: new Date(parsed.to),
-    };
-  } catch (error) {
-    console.error("Error parsing stored date range:", error);
-    return undefined;
-  }
-};
-
 export const useDatePickerStore = create<DatePickerStore>((set, get) => ({
-  // Initialize with stored date range or default if none exists
-  dateRange: getStoredDateRange() || getDefaultDateRange(),
+  dateRange: getDefaultDateRange(),
 
   setDateRange: (range) => {
-    // Store in localStorage when updating
-    if (range) {
-      localStorage.setItem(
-        "dateRange",
-        JSON.stringify({
-          from: range.from,
-          to: range.to,
-        })
-      );
-    } else {
-      localStorage.removeItem("dateRange");
-    }
     set({ dateRange: range });
   },
-
+  resetDateRange: () => {
+    set({ dateRange: getDefaultDateRange() });
+  },
   getFormattedRange: () => {
     const { dateRange } = get();
     if (!dateRange?.from || !dateRange?.to) return null;
@@ -66,8 +38,8 @@ export const useDatePickerStore = create<DatePickerStore>((set, get) => ({
     toDate.setHours(23, 59, 59, 999);
 
     return {
-      from: fromDate.toISOString(),
-      to: toDate.toISOString(),
+      from: fromDate.toLocaleDateString("en-CA"),
+      to: toDate.toLocaleDateString("en-CA"),
     };
   },
 }));

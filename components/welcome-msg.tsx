@@ -13,9 +13,6 @@ export default function WelcomeMessage() {
       <h2 className="text-2xl lg:text-4xl text-white">
         Welcome Back{user ? `, ${user}` : ""}👋
       </h2>
-      <p className="text-sm lg:text-base text-blue-300">
-        This is your Overview Report
-      </p>
     </div>
   );
 }

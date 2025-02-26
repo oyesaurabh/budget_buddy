@@ -59,8 +59,10 @@ class AxiosService {
   createNewCategory(payload: any): Promise<any> {
     return handleApiCall(() => this.api.post("/api/category", payload));
   }
-  getCategories(): Promise<any> {
-    return handleApiCall(() => this.api.get("/api/category"));
+  getCategories(payload: { account_id: string }): Promise<any> {
+    return handleApiCall(() =>
+      this.api.get(`/api/category?account_id=${payload?.account_id ?? ""}`)
+    );
   }
   deleteCategories(payload: string[]): Promise<any> {
     return handleApiCall(() =>
@@ -91,6 +93,13 @@ class AxiosService {
   deleteTransactions(payload: string[]): Promise<any> {
     return handleApiCall(() =>
       this.api.delete("/api/transaction", { data: payload })
+    );
+  }
+
+  //graphs
+  getTransactionExpenseChart(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/charts/transaction-expense-chart", payload)
     );
   }
 }

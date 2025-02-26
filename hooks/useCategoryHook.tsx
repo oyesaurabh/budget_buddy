@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { axiosService } from "@/services";
 import { toast } from "sonner";
+import { useAccountStore } from "./useAccountsHook";
+const { currentAccount } = useAccountStore.getState();
 
 //all the data related to category
 interface Category {
@@ -8,6 +10,7 @@ interface Category {
   name: string;
 }
 interface CreateCategoryValues {
+  account_id: string;
   name: string;
 }
 interface CategoryStore {
@@ -27,8 +30,11 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
   fetchCategories: async () => {
     try {
       set({ isLoading: true, error: null });
+      if (!currentAccount?.id) throw new Error("Account not found");
 
-      const { status, data, message } = await axiosService.getCategories();
+      const { status, data, message } = await axiosService.getCategories({
+        account_id: currentAccount?.id,
+      });
 
       if (!status) {
         set({

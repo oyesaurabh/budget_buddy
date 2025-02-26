@@ -154,6 +154,88 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
     });
     return transactions;
   };
+
+  //utils
+  const parseCSVLine = (line: string): string[] => {
+    const result: string[] = [];
+    let cell = "";
+    let insideQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+
+      if (char === '"') {
+        if (insideQuotes && line[i + 1] === '"') {
+          // Handle escaped quotes
+          cell += '"';
+          i++;
+        } else {
+          // Toggle quotes state
+          insideQuotes = !insideQuotes;
+        }
+      } else if (char === "," && !insideQuotes) {
+        // End of cell
+        result.push(cell.trim());
+        cell = "";
+      } else {
+        cell += char;
+      }
+    }
+
+    // Add the last cell
+    result.push(cell.trim());
+    return result;
+  };
+
+  const parseCSV = (content: string) => {
+    // Split into lines, handling potential \r\n
+    const lines = content.split(/\r?\n/).filter((line) => line.trim());
+
+    // Parse headers
+    const headers = parseCSVLine(lines[0]);
+
+    // Parse rows (first 5 for preview)
+    const rows = lines.map((line) => {
+      const cells = parseCSVLine(line);
+      // Ensure we have the same number of cells as headers
+      while (cells.length < headers.length) cells.push("");
+      return cells;
+    });
+
+    return { headers, rows };
+  };
+  function extractNoteOrName(input: string): string {
+    try {
+      const cleanstring = input.replace(/\s+/g, " ").trim();
+      if (cleanstring.startsWith("UPI")) {
+        const parts = cleanstring.split("/");
+        if (parts.length < 4) {
+          return "";
+        }
+
+        let message = "";
+        if (parts[6]) {
+          message = parts[6].split("//")[0];
+        }
+        return message.length ? message : parts[3];
+      } else if (cleanstring.startsWith("NEFT")) {
+        const parts = cleanstring.split("-");
+        return parts?.slice(3)?.join("-") ?? "";
+      }
+      return "UNKNOWN";
+    } catch (error) {
+      toast.error("Error while extracting excel");
+      setShowMapper(false);
+      setLoading(false);
+      setFile(null);
+      setCSVData({ headers: [], rows: [] });
+      setColumnMappings({});
+      setRowCategories({});
+      setRowPayees({});
+      return "";
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -391,72 +473,3 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
 };
 
 export default CSVUpload;
-
-//utils
-const parseCSVLine = (line: string): string[] => {
-  const result: string[] = [];
-  let cell = "";
-  let insideQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-
-    if (char === '"') {
-      if (insideQuotes && line[i + 1] === '"') {
-        // Handle escaped quotes
-        cell += '"';
-        i++;
-      } else {
-        // Toggle quotes state
-        insideQuotes = !insideQuotes;
-      }
-    } else if (char === "," && !insideQuotes) {
-      // End of cell
-      result.push(cell.trim());
-      cell = "";
-    } else {
-      cell += char;
-    }
-  }
-
-  // Add the last cell
-  result.push(cell.trim());
-  return result;
-};
-
-const parseCSV = (content: string) => {
-  // Split into lines, handling potential \r\n
-  const lines = content.split(/\r?\n/).filter((line) => line.trim());
-
-  // Parse headers
-  const headers = parseCSVLine(lines[0]);
-
-  // Parse rows (first 5 for preview)
-  const rows = lines.map((line) => {
-    const cells = parseCSVLine(line);
-    // Ensure we have the same number of cells as headers
-    while (cells.length < headers.length) cells.push("");
-    return cells;
-  });
-
-  return { headers, rows };
-};
-function extractNoteOrName(input: string): string {
-  const cleanstring = input.replace(/\s+/g, " ").trim();
-  if (cleanstring.startsWith("UPI")) {
-    const parts = cleanstring.split("/");
-    if (parts.length < 4) {
-      return "";
-    }
-
-    let message = "";
-    if (parts[6]) {
-      message = parts[6].split("//")[0];
-    }
-    return message.length ? message : parts[3];
-  } else if (cleanstring.startsWith("NEFT")) {
-    const parts = cleanstring.split("-");
-    return parts?.slice(3)?.join("-") ?? "";
-  }
-  return "UNKNOWN";
-}

@@ -29,7 +29,6 @@ const NewTransactionSheet = ({
       setIsDisabled(true);
 
       let success = false;
-      console.log(v);
       if (!!values) success = await editTransaction(v);
       else success = await createTransaction(v);
 

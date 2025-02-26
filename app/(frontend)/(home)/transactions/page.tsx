@@ -29,15 +29,18 @@ const TransactionPage = () => {
 
   useEffect(() => {
     if (!currentAccount?.id) return;
-    fetchTransactions({ accountId: currentAccount?.id });
+    fetchTransactions();
   }, [currentAccount]);
 
   //this will fetch transactions
-  const fetchTransactions = async (payload: any) => {
+  const fetchTransactions = async () => {
     try {
       setIsLoadingTransaction(true);
       const { status, data, message } = await axiosService.getTransactions(
-        JSON.stringify({ ...payload, ...getFormattedRange() })
+        JSON.stringify({
+          accountId: currentAccount?.id,
+          ...getFormattedRange(),
+        })
       );
 
       if (!status) {
@@ -122,7 +125,7 @@ const TransactionPage = () => {
                 <PlusIcon className="mr-2 h-4 w-4" />
                 Add New
               </Button>
-              <UseDateRangePicker />
+              <UseDateRangePicker fetchTransactions={fetchTransactions} />
             </div>
           </CardHeader>
           <CardContent>{renderContent()}</CardContent>

@@ -6,4 +6,7 @@ model accounts {
     balance      Int            @default(0) //will store in paisa instead of rupees to avoid floating point errors
     balance_date DateTime       @default(now())
     transactions transactions[]
+    categories   categories[]
+    created_at   DateTime       @default(now())
+    updated_at   DateTime       @updatedAt
 }
