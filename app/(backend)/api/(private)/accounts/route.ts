@@ -94,7 +94,7 @@ type EditAccountPayload = {
   name?: string;
   balance?: number;
 };
-export const editAccount = async (request: NextRequest) => {
+const editAccount = async (request: NextRequest) => {
   try {
     const payload: EditAccountPayload = await request.json();
     const { id, name, balance } = payload;
