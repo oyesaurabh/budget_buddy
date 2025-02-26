@@ -22,6 +22,7 @@ const bulkDelete = async (request: NextRequest) => {
       },
     });
   } catch (error) {
+    console.error("Error while deleting accounts", error);
     throw new Error("Error while deleting accounts");
   }
 

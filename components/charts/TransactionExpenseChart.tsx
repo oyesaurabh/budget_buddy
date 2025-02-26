@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
@@ -29,18 +28,6 @@ import { useCategoryStore } from "@/hooks/useCategoryHook";
 import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { axiosService } from "@/services";
-
-const chartData = [
-  { date: "2024-04-01", Debit: 222, Credit: 150 },
-  { date: "2024-04-02", Debit: 97, Credit: 180 },
-  { date: "2024-04-03", Debit: 167, Credit: 120 },
-  { date: "2024-04-04", Debit: 242, Credit: 260 },
-  { date: "2024-04-05", Debit: 373, Credit: 290 },
-  { date: "2024-04-06", Debit: 301, Credit: 340 },
-  { date: "2024-04-07", Debit: 245, Credit: 180 },
-  { date: "2024-04-08", Debit: 409, Credit: 320 },
-  { date: "2024-04-09", Debit: 59, Credit: 110 },
-];
 
 const chartConfig = {
   Debit: {
@@ -143,7 +130,6 @@ export default function AreaVariant() {
         new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    console.log(filteredData);
     setChartData(filteredData as ChartDataItem[]);
   };
 

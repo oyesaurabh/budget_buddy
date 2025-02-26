@@ -31,6 +31,7 @@ const logoutUser = async (request: NextRequest) => {
 
     return response;
   } catch (error) {
+    console.error(error);
     // Handle invalid or expired token
     return NextResponse.json(
       { status: false, message: "Invalid session" },

@@ -56,6 +56,7 @@ const getTransactionExpenseChart = async (request: NextRequest) => {
 
     return NextResponse.json({ data: formattedData, status: true });
   } catch (error) {
+    console.error(error);
     throw new Error("Error while fetching transactions");
   }
 };

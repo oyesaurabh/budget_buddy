@@ -85,7 +85,7 @@ export default function Navigation() {
     <nav className="hidden lg:flex items-center gap-x-2 overflow-x-auto">
       {routes.map((route) => {
         return (
-          <Link href={route.href}>
+          <Link href={route.href} key={route.href}>
             <Button
               key={route.href}
               variant="ghost"
