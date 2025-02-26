@@ -36,7 +36,7 @@ async function getAccounts(request: NextRequest) {
 }
 const createAccount = async (request: NextRequest) => {
   const body = await request.json();
-  let parsedBody = accountSchema.parse(body);
+  const parsedBody = accountSchema.parse(body);
   const { name } = parsedBody;
   let { balance, balance_date } = parsedBody;
   if (!name) {
