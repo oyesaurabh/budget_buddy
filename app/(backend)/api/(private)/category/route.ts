@@ -14,6 +14,7 @@ async function getCategories(request: NextRequest) {
       select: { name: true, id: true },
     });
   } catch (error) {
+    console.error(error);
     throw new Error("Error while fetching categories");
   }
 
@@ -37,6 +38,7 @@ const createCategory = async (request: NextRequest) => {
       },
     });
   } catch (error) {
+    console.error(error);
     throw new Error("Error while creating category");
   }
 
@@ -64,6 +66,7 @@ const editCategory = async (request: NextRequest) => {
       data: { name },
     });
   } catch (error) {
+    console.error(error);
     throw new Error("Error while updating category");
   }
 

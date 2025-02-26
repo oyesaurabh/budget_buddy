@@ -22,6 +22,7 @@ const bulkDelete = async (request: NextRequest) => {
       },
     });
   } catch (error) {
+    console.error(error);
     throw new Error("Error while deleting categories");
   }
 

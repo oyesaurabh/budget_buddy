@@ -18,6 +18,7 @@ async function getAccounts(request: NextRequest) {
       select: { name: true, id: true, balance: true, balance_date: true },
     });
   } catch (err) {
+    console.log(err);
     throw new Error("Error while fetching accounts");
   }
   //converting balance to rupees from paisa
@@ -35,7 +36,9 @@ async function getAccounts(request: NextRequest) {
 }
 const createAccount = async (request: NextRequest) => {
   const body = await request.json();
-  let { name, balance, balance_date } = accountSchema.parse(body);
+  let parsedBody = accountSchema.parse(body);
+  const { name } = parsedBody;
+  let { balance, balance_date } = parsedBody;
   if (!name) {
     return NextResponse.json(
       {
@@ -67,6 +70,7 @@ const createAccount = async (request: NextRequest) => {
       },
     });
   } catch (error) {
+    console.log(error);
     throw new Error("Error while creating account");
   }
 
@@ -106,7 +110,12 @@ export const editAccount = async (request: NextRequest) => {
     }
 
     // Prepare the update data based on what was provided
-    const updateData: any = {};
+    type updatedef = {
+      name?: string;
+      balance?: number;
+      balance_date?: Date;
+    };
+    const updateData: updatedef = {};
     if (name !== undefined) {
       updateData.name = name;
     }
@@ -134,6 +143,7 @@ export const editAccount = async (request: NextRequest) => {
       message: "Successfully updated account",
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       {
         status: false,
