@@ -1,13 +1,32 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { DayPicker } from "react-day-picker"
+import * as React from "react";
+import { DayPicker } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons"
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
+import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>
+export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+
+type IconProps = React.HTMLAttributes<SVGSVGElement> & {
+  className?: string;
+  children?: React.ReactNode;
+};
+
+const IconWrapperLeft = ({ className, ...props }: IconProps) => (
+  <ChevronLeftIcon
+    className={cn("h-4 w-4", className)}
+    {...(props as Omit<typeof props, "children">)}
+  />
+);
+
+const IconWrapperRight = ({ className, ...props }: IconProps) => (
+  <ChevronRightIcon
+    className={cn("h-4 w-4", className)}
+    {...(props as Omit<typeof props, "children">)}
+  />
+);
 
 function Calendar({
   className,
@@ -60,17 +79,18 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeftIcon className={cn("h-4 w-4", className)} {...props} />
+        IconLeft: ({ className, ...props }: IconProps) => (
+          <IconWrapperLeft className={className} {...props} />
         ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRightIcon className={cn("h-4 w-4", className)} {...props} />
+        IconRight: ({ className, ...props }: IconProps) => (
+          <IconWrapperRight className={className} {...props} />
         ),
       }}
       {...props}
     />
-  )
+  );
 }
-Calendar.displayName = "Calendar"
 
-export { Calendar }
+Calendar.displayName = "Calendar";
+
+export { Calendar };
