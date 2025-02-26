@@ -9,7 +9,7 @@ import {
 } from "@/utils";
 import { redisService, joseService } from "@/services";
 
-export const loginUser = async (request: NextRequest) => {
+const loginUser = async (request: NextRequest) => {
   const body = await request.json();
   const { email, password } = signinSchema.parse(body);
 
