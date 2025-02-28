@@ -12,7 +12,8 @@ const WorkInProgress = () => {
           Work in Progress
         </h1>
         <p className="text-gray-600 dark:text-gray-300 text-lg mb-8">
-          We&apos;re currently working on something awesome. Check back soon!
+          We&apos;re currently working on this. <br />
+          Check back soon!
         </p>
         <div className="animate-pulse bg-blue-100 dark:bg-blue-900 rounded-lg p-4">
           <p className="text-blue-600 dark:text-blue-300">
