@@ -98,7 +98,7 @@ class AxiosService {
 
   // data-grids
   getDataGrid(payload: any): Promise<any> {
-    return handleApiCall(() => this.api.post("/api/data-grid", payload));
+    return handleApiCall(() => this.api.post("/api/datagrid", payload));
   }
 
   //graphs

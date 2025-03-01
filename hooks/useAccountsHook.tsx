@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { axiosService } from "@/services";
 import { accountSchema } from "@/utils/schema";
 
+import { useCategoryStore } from "./useCategoryHook";
+
 // Infer the type of the account schema
 type Account = z.infer<typeof accountSchema>;
 
@@ -33,6 +35,9 @@ export const useAccountStore = create<AccountStore>((set) => ({
   setCurrentAccount: (acc: Account | null) => {
     localStorage.setItem("currentAccount", JSON.stringify(acc));
     set({ currentAccount: acc });
+    if (acc?.id) {
+      useCategoryStore.getState().fetchCategories(acc.id);
+    }
   },
   removeCurrentAccountFromLocalStorage: () => {
     localStorage.removeItem("currentAccount");
@@ -56,6 +61,8 @@ export const useAccountStore = create<AccountStore>((set) => ({
 
       if (!useAccountStore.getState().currentAccount && data.length > 0) {
         useAccountStore.getState().setCurrentAccount(data[0]);
+      } else if (data.length > 0) {
+        useCategoryStore.getState().fetchCategories(data[0].id);
       }
     } catch (err) {
       const errorMessage =

@@ -10,7 +10,7 @@ export default function WelcomeMessage() {
   }, []);
   return (
     <div className="space-y-2">
-      <h2 className="text-2xl lg:text-4xl text-white">
+      <h2 className="text-2xl md:text-4xl text-white">
         Welcome Back{user ? `, ${user}` : ""}👋
       </h2>
     </div>

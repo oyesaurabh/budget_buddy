@@ -8,19 +8,20 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { formatCurrency } from "@/utils/math";
 
 type props = {
   title: string;
   dateRange?: string;
   value?: number;
-  percentageChange?: number;
+  percentageChange?: any;
   Icon: IconType;
   isLoading?: boolean;
 };
 export const DataCards = ({
   title,
   dateRange,
-  value = 0,
+  value,
   percentageChange,
   Icon,
   isLoading,
@@ -46,19 +47,23 @@ export const DataCards = ({
               <CardTitle className="text-2xl line-clamp-1">{title}</CardTitle>
               <CardDescription className="line-clamp-1">
                 {dateRange ||
-                  `${format(
-                    new Date().setDate(new Date().getDate() - 30),
-                    "dd MMM"
-                  )} - ${format(new Date(), "dd MMM, yyyy")}`}
+                  `${format(new Date().setDate(1), "dd MMM")} - ${format(
+                    new Date(),
+                    "dd MMM, yyyy"
+                  )}`}
               </CardDescription>
             </div>
             <div className="shrink-0">
-              <Icon className="size-6 bg-blue-500/20 fill-blue-400" />
+              <Icon className="size-8 text-blue-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <h1 className="font-bold text-2xl mb-2 line-clamp-1">{`₹ ${value}`}</h1>
-            {percentageChange && (
+            {
+              <h1 className="font-bold text-2xl mb-2 line-clamp-1">
+                {formatCurrency(value)}
+              </h1>
+            }
+            {percentageChange != undefined ? (
               <p
                 className={`${
                   percentageChange > 0
@@ -68,12 +73,9 @@ export const DataCards = ({
                     : ""
                 }`}
               >
-                {percentageChange > 0
-                  ? `+ ${percentageChange}`
-                  : percentageChange}
-                % from last period
+                last month: {formatCurrency(percentageChange)}
               </p>
-            )}
+            ) : null}
           </CardContent>
         </>
       )}

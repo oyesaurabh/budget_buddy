@@ -28,6 +28,7 @@ import { useCategoryStore } from "@/hooks/useCategoryHook";
 import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { axiosService } from "@/services";
+import { useAccountStore } from "@/hooks/useAccountsHook";
 
 const chartConfig = {
   Debit: {
@@ -68,7 +69,7 @@ export default function AreaVariant() {
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
   const [charDataLoading, setChartDataLoading] = useState(false);
   const { Categories, isLoading } = useCategoryStore();
-
+  const { currentAccount } = useAccountStore();
   const fetchData = async (payload: any) => {
     try {
       setChartDataLoading(true);
@@ -79,6 +80,7 @@ export default function AreaVariant() {
       prepareChartData(data);
     } catch (error) {
       console.error(error);
+      prepareChartData([]);
     } finally {
       setChartDataLoading(false);
     }
@@ -93,7 +95,7 @@ export default function AreaVariant() {
       timeRange,
     };
     fetchData(payload);
-  }, [isLoading]);
+  }, [isLoading, currentAccount]);
 
   const handleSearch = async () => {
     try {
@@ -149,7 +151,11 @@ export default function AreaVariant() {
           </>
         ) : (
           <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
-            <Select value={timeRange} onValueChange={setTimeRange}>
+            <Select
+              value={timeRange}
+              onValueChange={setTimeRange}
+              disabled={Categories.length === 0}
+            >
               <SelectTrigger className="w-full md:w-[160px] rounded-lg sm:ml-auto">
                 <SelectValue placeholder="Select Daterange..." />
               </SelectTrigger>
@@ -170,6 +176,7 @@ export default function AreaVariant() {
               value={categoryId}
               onValueChange={setCategoryId}
               defaultValue={Categories[0]?.id}
+              disabled={isLoading || Categories.length === 0}
             >
               <SelectTrigger className="w-full md:w-[160px] rounded-lg sm:ml-auto">
                 <SelectValue placeholder="Select Category..." />
@@ -185,7 +192,7 @@ export default function AreaVariant() {
 
             <Button
               variant="secondary"
-              disabled={isLoading || charDataLoading}
+              disabled={isLoading || charDataLoading || Categories.length === 0}
               onClick={handleSearch}
             >
               {charDataLoading ? (
