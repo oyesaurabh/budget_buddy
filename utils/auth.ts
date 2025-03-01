@@ -54,24 +54,3 @@ export const validateAccountOwnership = async (
     return false;
   }
 };
-// export const validateTransactinoOwnership=async( userId: string, transactionId: string)=>{
-//   try {
-//     let transaction;
-//     try {
-//       transaction = await prisma.transactions.findUnique({
-//         where: {
-//           id: transactionId,
-//           user_id: userId,
-//         },
-//         select: { id: true },
-//       });
-//     } catch (error) {
-//       return false;
-//     }
-
-//     return !!transaction;
-//   } catch (error) {
-//     console.error("Transaction ownership validation error:", error);
-//     return false;
-//   }
-// }
