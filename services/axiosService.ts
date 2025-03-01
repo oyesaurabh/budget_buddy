@@ -96,6 +96,11 @@ class AxiosService {
     );
   }
 
+  // data-grids
+  getDataGrid(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.post("/api/data-grid", payload));
+  }
+
   //graphs
   getTransactionExpenseChart(payload: any): Promise<any> {
     return handleApiCall(() =>
