@@ -2,38 +2,38 @@ import { create } from "zustand";
 import { axiosService } from "@/services";
 import { toast } from "sonner";
 import { useAccountStore } from "./useAccountsHook";
-const { currentAccount } = useAccountStore.getState();
-
-//all the data related to category
+// All the data related to category
 interface Category {
   id: string;
   name: string;
 }
+
 interface CreateCategoryValues {
   account_id: string;
   name: string;
 }
+
 interface CategoryStore {
   Categories: Category[];
   isLoading: boolean;
   error: string | null;
-  fetchCategories: () => Promise<void>;
+  fetchCategories: (account_id: string | undefined) => Promise<void>;
   deleteCategories: (ids: string[]) => Promise<boolean>;
   createCategory: (values: CreateCategoryValues) => Promise<boolean>;
   editCategory: (values: Category) => Promise<boolean>;
 }
+
 export const useCategoryStore = create<CategoryStore>((set) => ({
   Categories: [],
   isLoading: true,
   error: null,
 
-  fetchCategories: async () => {
+  fetchCategories: async (account_id: any) => {
     try {
       set({ isLoading: true, error: null });
-      if (!currentAccount?.id) throw new Error("Account not found");
 
       const { status, data, message } = await axiosService.getCategories({
-        account_id: currentAccount?.id,
+        account_id,
       });
 
       if (!status) {
@@ -127,9 +127,8 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
     }
   },
 }));
-useCategoryStore.getState().fetchCategories();
 
-//this is our Category sidebar slide option
+// This is our Category sidebar slide option
 type NewCategoryState = {
   isOpen: boolean;
   values: any;
@@ -137,6 +136,7 @@ type NewCategoryState = {
   onClose: () => void;
   setValues: (data: any) => void;
 };
+
 export const useNewCategory = create<NewCategoryState>((set) => ({
   isOpen: false,
   values: {},

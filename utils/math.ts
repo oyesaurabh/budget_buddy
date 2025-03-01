@@ -21,3 +21,19 @@ export function convertTimestamp(timestamp: string): string {
 
   return `${day} ${month}, ${year} ${time}`;
 }
+
+export const formatCurrency = (
+  amount: any,
+  locale = "en-IN",
+  currency = "INR"
+) => {
+  if (amount === undefined || amount === null) {
+    return "₹0.00";
+  }
+  return Number(amount).toLocaleString(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
