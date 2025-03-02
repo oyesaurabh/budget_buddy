@@ -2,6 +2,10 @@
 
 Budget Buddy is a money management application designed to help users track their expenses and manage their finances efficiently. Users can add transaction details, visualize their spending data through graphs, and manage their account sessions securely.
 
+## 💻 Screenshots
+
+![first image](https://github.com/user-attachments/assets/06a980bd-982b-4488-bb33-6b8acd3a8dd5)
+
 ## 🚀 Features
 
 - **Transaction Tracking**: Add and manage your transaction details, including expenses and income.
@@ -24,7 +28,7 @@ Budget Buddy is a money management application designed to help users track thei
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/budget-buddy.git
+   git clone https://github.com/oyesaurabh/budget_buddy.git
    cd budget-buddy
    ```
 2. **Install Dependencies**
@@ -32,10 +36,23 @@ Budget Buddy is a money management application designed to help users track thei
    npm install
    ```
 3. **Environment Variables**: Create a `.env` file in the root directory and configure the following variables:
+
    ```bash
-   DATABASE_URL=your_database_url
-   NEXT_PUBLIC_API_URL=your_api_url
+   NODE_ENV=""
+   NEXT_API_BASE_URL=""
+
+   # postgres config
+   DATABASE_URL=""
+
+   #jwt and salt
+   SALT_SECRET_KEY=""
+   JWT_SECRET=""
+
+   #redis
+   UPSTASH_REDIS_REST_URL=""
+   UPSTASH_REDIS_REST_TOKEN=""
    ```
+
 4. **Run the Application**
    ```bash
    npm run dev
@@ -49,6 +66,7 @@ Budget Buddy is a money management application designed to help users track thei
 ## 📈 Future Enhancements
 
 - Budgeting and saving goal features.
+- Alert feature if we spend more than our goal
 - Advanced data filters and more graph types.
 - Integration with banking APIs for automatic transaction imports.
 
