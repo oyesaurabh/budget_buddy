@@ -18,16 +18,32 @@ const getTransactionExpenseChart = async (request: NextRequest) => {
 
   switch (timeRange) {
     case "current":
-      startDate = new Date(currentDate.setDate(1));
+      startDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1
+      );
       break;
     case "1m":
-      startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
+      startDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - 1,
+        1
+      );
       break;
     case "3m":
-      startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 3));
+      startDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - 3,
+        1
+      );
       break;
     case "6m":
-      startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 6));
+      startDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - 6,
+        1
+      );
       break;
     default:
       return NextResponse.json(
@@ -42,7 +58,7 @@ const getTransactionExpenseChart = async (request: NextRequest) => {
         category_id: categoryId,
         date: {
           gte: startDate,
-          lte: new Date(),
+          lte: new Date(new Date().setHours(23, 59, 59, 999)), // End of the current day
         },
       },
       select: { date: true, amount: true },
@@ -57,7 +73,10 @@ const getTransactionExpenseChart = async (request: NextRequest) => {
     return NextResponse.json({ data: formattedData, status: true });
   } catch (error) {
     console.error(error);
-    throw new Error("Error while fetching transactions");
+    return NextResponse.json(
+      { error: "Error while fetching transactions" },
+      { status: 500 }
+    );
   }
 };
 export const POST = withErrorHandling(getTransactionExpenseChart);

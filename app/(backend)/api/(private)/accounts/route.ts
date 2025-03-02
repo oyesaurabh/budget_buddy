@@ -133,10 +133,14 @@ const editAccount = async (request: NextRequest) => {
       });
     }
 
-    await prisma.accounts.update({
-      where: { id },
-      data: updateData,
-    });
+    try {
+      await prisma.accounts.update({
+        where: { id },
+        data: updateData,
+      });
+    } catch (error) {
+      throw new Error("Error while updating account");
+    }
 
     return NextResponse.json({
       status: true,

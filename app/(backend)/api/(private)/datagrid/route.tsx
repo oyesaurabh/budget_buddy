@@ -21,19 +21,24 @@ const getDataGrid = async (request: NextRequest) => {
       1
     );
 
-    const data = await prisma.transactions.findMany({
-      where: {
-        account_id,
-        date: {
-          gte: preDate,
-          lte: currentDate,
+    let data;
+    try {
+      data = await prisma.transactions.findMany({
+        where: {
+          account_id,
+          date: {
+            gte: preDate,
+            lte: currentDate,
+          },
         },
-      },
-      select: {
-        date: true,
-        amount: true,
-      },
-    });
+        select: {
+          date: true,
+          amount: true,
+        },
+      });
+    } catch (error) {
+      throw new Error("Error while fetching data");
+    }
 
     const finalObj = {
       total_income: 0,

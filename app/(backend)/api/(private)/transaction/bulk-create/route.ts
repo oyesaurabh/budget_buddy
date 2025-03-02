@@ -142,25 +142,30 @@ const bulkTransactionCreate = async (request: NextRequest) => {
     const deduplicatedTransactions = await Promise.all(
       Array.from(uniqueTransactions.values()).map(async (transaction) => {
         const transactionDate = parseDateString(String(transaction.date));
-        const existingTransaction = await prisma.transactions.findFirst({
-          where: transaction.cheque_no
-            ? {
-                // For transactions with cheque numbers
-                AND: [
-                  { account_id: transaction.accountId },
-                  { cheque_no: transaction.cheque_no },
-                ],
-              }
-            : {
-                // For transactions without cheque numbers
-                AND: [
-                  { account_id: transaction.accountId },
-                  { amount: transaction.amount * 100 }, // Convert to paisa
-                  { date: transactionDate },
-                  { payee: transaction.payee },
-                ],
-              },
-        });
+        let existingTransaction;
+        try {
+          existingTransaction = await prisma.transactions.findFirst({
+            where: transaction.cheque_no
+              ? {
+                  // For transactions with cheque numbers
+                  AND: [
+                    { account_id: transaction.accountId },
+                    { cheque_no: transaction.cheque_no },
+                  ],
+                }
+              : {
+                  // For transactions without cheque numbers
+                  AND: [
+                    { account_id: transaction.accountId },
+                    { amount: transaction.amount * 100 }, // Convert to paisa
+                    { date: transactionDate },
+                    { payee: transaction.payee },
+                  ],
+                },
+          });
+        } catch (error) {
+          return null;
+        }
 
         return existingTransaction ? null : transaction;
       })
@@ -193,16 +198,20 @@ const bulkTransactionCreate = async (request: NextRequest) => {
     }
 
     // Bulk create non-duplicate transactions
-    const result = await prisma.transactions.createMany({
-      data: transactionsToCreate,
-    });
+    try {
+      const result = await prisma.transactions.createMany({
+        data: transactionsToCreate,
+      });
 
-    return NextResponse.json({
-      status: true,
-      message: "Transactions created successfully",
-      count: result.count,
-      skippedDuplicates,
-    });
+      return NextResponse.json({
+        status: true,
+        message: "Transactions created successfully",
+        count: result.count,
+        skippedDuplicates,
+      });
+    } catch (error) {
+      throw new Error(" Server Error");
+    }
   } catch (error) {
     console.error("Bulk transaction creation error:", error);
     return NextResponse.json(
@@ -239,19 +248,29 @@ const parseDateString = (dateString: string): Date => {
       .map((num) => parseInt(num, 10));
 
     // Validate all components are numbers
-    if ([day, month, year, hours, minutes, seconds].some(isNaN)) {
+    if ([day, month, year].some(isNaN)) {
       throw new Error("Invalid number in date components");
     }
 
     // Validate ranges
     if (month < 1 || month > 12) throw new Error("Invalid month");
     if (day < 1 || day > 31) throw new Error("Invalid day");
-    if (hours < 0 || hours > 23) throw new Error("Invalid hours");
-    if (minutes < 0 || minutes > 59) throw new Error("Invalid minutes");
-    if (seconds < 0 || seconds > 59) throw new Error("Invalid seconds");
+    if (!isNaN(hours) && (hours < 0 || hours > 23))
+      throw new Error("Invalid hours");
+    if (!isNaN(minutes) && (minutes < 0 || minutes > 59))
+      throw new Error("Invalid minutes");
+    if (!isNaN(seconds) && (seconds < 0 || seconds > 59))
+      throw new Error("Invalid seconds");
 
     // Create date object (month is 0-based in JavaScript)
-    const date = new Date(year, month - 1, day, hours, minutes, seconds);
+    const date = new Date(
+      year,
+      month - 1,
+      day,
+      !isNaN(hours) ? hours : 0,
+      !isNaN(minutes) ? minutes : 0,
+      !isNaN(seconds) ? seconds : 0
+    );
 
     // Verify the date is valid
     if (isNaN(date.getTime())) {
