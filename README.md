@@ -16,8 +16,13 @@ Budget Buddy is a money management application designed to help users track thei
 ![4 ss](https://github.com/user-attachments/assets/a9b6bb8c-237d-4e9f-9466-3175cb155350)
 <br>
 
-![5 ss](https://github.com/user-attachments/assets/546b2eed-052e-46fc-96a8-17eb8ef6b8f4)
-<br>
+<div>
+  <img src="https://github.com/user-attachments/assets/3d7643f1-9445-4cc5-8043-ec5a25fac2bd" height="520">
+  <img src="https://github.com/user-attachments/assets/74011bb9-090f-4830-bb55-abb65d3c42d7" height="520">
+  <img src="https://github.com/user-attachments/assets/fcb8ba9a-2529-4cee-a6eb-1463dc5556dd" height="520">
+  <img src="https://github.com/user-attachments/assets/cbb5a636-1c1a-4000-82ab-7823d5e578e5" height="520">
+</div>
+
 
 ## 🚀 Features
 
