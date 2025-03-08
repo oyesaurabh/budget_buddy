@@ -229,55 +229,32 @@ export const POST = withErrorHandling(bulkTransactionCreate);
 // Helper function to parse date string in "DD-MM-YYYY HH:mm:ss" format
 const parseDateString = (dateString: string): Date => {
   try {
-    // Split the date and time parts
+    // dateString: 01-03-2025 10:25:07
     const [datePart, timePart] = dateString.split(" ");
 
-    // Only proceed if we have both date and time parts
-    if (!datePart || !timePart) {
-      throw new Error("Missing date or time part");
-    }
+    const [day, month, year] = datePart.split("-").map(Number);
 
-    // Parse date components
-    const [day, month, year] = datePart
-      .split("-")
-      .map((num) => parseInt(num, 10));
+    const [hours, minutes, seconds] = timePart.split(":").map(Number);
 
-    // Parse time components
-    const [hours, minutes, seconds] = timePart
-      .split(":")
-      .map((num) => parseInt(num, 10));
+    const localDate = new Date(year, month - 1, day, hours, minutes, seconds);
 
-    // Validate all components are numbers
-    if ([day, month, year].some(isNaN)) {
-      throw new Error("Invalid number in date components");
-    }
-
-    // Validate ranges
-    if (month < 1 || month > 12) throw new Error("Invalid month");
-    if (day < 1 || day > 31) throw new Error("Invalid day");
-    if (!isNaN(hours) && (hours < 0 || hours > 23))
-      throw new Error("Invalid hours");
-    if (!isNaN(minutes) && (minutes < 0 || minutes > 59))
-      throw new Error("Invalid minutes");
-    if (!isNaN(seconds) && (seconds < 0 || seconds > 59))
-      throw new Error("Invalid seconds");
-
-    // Create date object (month is 0-based in JavaScript)
-    const date = new Date(
-      year,
-      month - 1,
-      day,
-      !isNaN(hours) ? hours : 0,
-      !isNaN(minutes) ? minutes : 0,
-      !isNaN(seconds) ? seconds : 0
-    );
-
-    // Verify the date is valid
-    if (isNaN(date.getTime())) {
+    if (isNaN(localDate.getTime())) {
       throw new Error("Invalid date");
     }
 
-    return date;
+    // Convert to UTC
+    const utcDate = new Date(
+      Date.UTC(
+        localDate.getUTCFullYear(),
+        localDate.getUTCMonth(),
+        localDate.getUTCDate(),
+        localDate.getUTCHours(),
+        localDate.getUTCMinutes(),
+        localDate.getUTCSeconds()
+      )
+    );
+
+    return utcDate;
   } catch (error: any) {
     throw new Error(
       `Invalid date format: ${dateString}. Expected format: DD-MM-YYYY HH:mm:ss. Error: ${error.message}`
