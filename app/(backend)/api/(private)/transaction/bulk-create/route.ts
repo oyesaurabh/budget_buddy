@@ -236,7 +236,8 @@ const parseDateString = (dateString: string): Date => {
     if (isNaN(istDate.getTime())) {
       throw new Error("Invalid date");
     }
-    return istDate;
+    // Convert IST to UTC
+    return new Date(istDate.getTime() - 5.5 * 60 * 60 * 1000);
   } catch (error: any) {
     throw new Error(
       `Invalid date format: ${dateString}. Expected format: DD-MM-YYYY HH:mm:ss. Error: ${error.message}`
