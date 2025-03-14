@@ -51,8 +51,6 @@ const bulkTransactionCreate = async (request: NextRequest) => {
     const validationResults: ValidationResult[] = await Promise.all(
       transactionArray.map(async (transaction): Promise<ValidationResult> => {
         try {
-          // const transaction = transactionSchema.parse(transaction);
-
           if (
             !transaction.accountId ||
             !transaction.amount ||
@@ -159,7 +157,6 @@ const bulkTransactionCreate = async (request: NextRequest) => {
                     { account_id: transaction.accountId },
                     { amount: transaction.amount * 100 }, // Convert to paisa
                     { date: transactionDate },
-                    { payee: transaction.payee },
                   ],
                 },
           });
