@@ -229,32 +229,17 @@ export const POST = withErrorHandling(bulkTransactionCreate);
 // Helper function to parse date string in "DD-MM-YYYY HH:mm:ss" format
 const parseDateString = (dateString: string): Date => {
   try {
-    // dateString: 01-03-2025 10:25:07
+    // dateString: 01-03-2025 10:25:07 (IST)
     const [datePart, timePart] = dateString.split(" ");
-
     const [day, month, year] = datePart.split("-").map(Number);
-
     const [hours, minutes, seconds] = timePart.split(":").map(Number);
 
-    const localDate = new Date(year, month - 1, day, hours, minutes, seconds);
+    const istDate = new Date(year, month - 1, day, hours, minutes, seconds);
 
-    if (isNaN(localDate.getTime())) {
+    if (isNaN(istDate.getTime())) {
       throw new Error("Invalid date");
     }
-
-    // Convert to UTC
-    const utcDate = new Date(
-      Date.UTC(
-        localDate.getUTCFullYear(),
-        localDate.getUTCMonth(),
-        localDate.getUTCDate(),
-        localDate.getUTCHours(),
-        localDate.getUTCMinutes(),
-        localDate.getUTCSeconds()
-      )
-    );
-
-    return utcDate;
+    return istDate;
   } catch (error: any) {
     throw new Error(
       `Invalid date format: ${dateString}. Expected format: DD-MM-YYYY HH:mm:ss. Error: ${error.message}`
