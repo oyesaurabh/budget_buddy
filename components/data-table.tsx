@@ -11,7 +11,7 @@ import {
   ColumnFiltersState,
   getFilteredRowModel,
 } from "@tanstack/react-table";
-
+import { useCategoryStore } from "@/hooks/useCategoryHook";
 import {
   Table,
   TableBody,
@@ -21,15 +21,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useConfirm } from "@/hooks/useConfirm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Trash } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { MdClear } from "react-icons/md";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: any[];
   filterKey?: string;
   onDelete?: (data: any) => void;
+  categorySelection?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -37,16 +47,21 @@ export function DataTable<TData, TValue>({
   data,
   filterKey,
   onDelete,
+  categorySelection = false,
 }: DataTableProps<TData, TValue>) {
   const [ConfirmationDialog, confirm] = useConfirm(
     "Are you sure?",
     "You are about to bulk delete."
   );
+  const { Categories } = useCategoryStore();
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
+  const [filteredData, setFilteredData] = useState<any[]>(data);
+
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     initialState: {
       pagination: {
@@ -66,6 +81,12 @@ export function DataTable<TData, TValue>({
       rowSelection,
     },
   });
+  useEffect(() => {
+    const newData = data.filter(
+      (item) => item.categoryId === selectedCategory || !selectedCategory
+    );
+    setFilteredData(newData);
+  }, [selectedCategory]);
 
   return (
     <div>
@@ -82,6 +103,37 @@ export function DataTable<TData, TValue>({
             }
             className="max-w-sm"
           />
+        )}
+        {categorySelection && (
+          <div className="flex items-center gap-2">
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => setSelectedCategory(value)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {Categories?.map((category) => {
+                    return (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {selectedCategory && (
+              <Button
+                variant={"destructive"}
+                onClick={() => setSelectedCategory("")}
+              >
+                <MdClear />
+              </Button>
+            )}
+          </div>
         )}
         <Button
           disabled={!table.getFilteredSelectedRowModel().rows.length}
