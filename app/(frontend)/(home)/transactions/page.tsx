@@ -92,6 +92,7 @@ const TransactionPage = () => {
         columns={columns}
         data={Transactions}
         onDelete={handleDelete}
+        categorySelection={true}
       />
     );
   };
