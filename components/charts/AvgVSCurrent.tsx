@@ -27,6 +27,16 @@ const chartData = [
   { category: "Travel", avg: 8000, current: 7000 },
   { category: "Entertainment", avg: 5000, current: 6000 },
   { category: "Utilities", avg: 3000, current: 3500 },
+  { category: "aklsfd", avg: 3000, current: 3500 },
+  { category: "sdfsml", avg: 3000, current: 3500 },
+  { category: "Utili", avg: 3000, current: 3300 },
+  { category: "Utilities", avg: 9000, current: 3400 },
+  { category: "Utilities", avg: 1000, current: 3700 },
+  { category: "Utilities", avg: 400, current: 300 },
+  { category: "Utilities", avg: 350, current: 900 },
+  { category: "Utilities", avg: 10, current: 200 },
+  { category: "Utilities", avg: 800, current: 300 },
+  { category: "Utilities", avg: 300, current: 100 },
 ];
 
 // Chart configuration for avg vs current
@@ -46,7 +56,10 @@ export default function AvgVSCurrent() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Average vs Current Spending</CardTitle>
-        <CardDescription>Last 6 months</CardDescription>
+        <CardDescription>
+          Showing average vs current spending category-wise for the last 6
+          months
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -59,8 +72,8 @@ export default function AvgVSCurrent() {
               top: 12,
               bottom: 12,
             }}
-            height={300} // Set a fixed height or make it dynamic
-            width={500}
+            height={100}
+            width={300}
           >
             <CartesianGrid vertical={false} />
             <XAxis
@@ -108,19 +121,6 @@ export default function AvgVSCurrent() {
           </LineChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Spending increased by 12% this month{" "}
-              <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Showing average vs current spending for the last 6 months
-            </div>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
