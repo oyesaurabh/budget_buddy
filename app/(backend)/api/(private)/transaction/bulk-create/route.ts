@@ -51,8 +51,6 @@ const bulkTransactionCreate = async (request: NextRequest) => {
     const validationResults: ValidationResult[] = await Promise.all(
       transactionArray.map(async (transaction): Promise<ValidationResult> => {
         try {
-          // const transaction = transactionSchema.parse(transaction);
-
           if (
             !transaction.accountId ||
             !transaction.amount ||
@@ -142,25 +140,29 @@ const bulkTransactionCreate = async (request: NextRequest) => {
     const deduplicatedTransactions = await Promise.all(
       Array.from(uniqueTransactions.values()).map(async (transaction) => {
         const transactionDate = parseDateString(String(transaction.date));
-        const existingTransaction = await prisma.transactions.findFirst({
-          where: transaction.cheque_no
-            ? {
-                // For transactions with cheque numbers
-                AND: [
-                  { account_id: transaction.accountId },
-                  { cheque_no: transaction.cheque_no },
-                ],
-              }
-            : {
-                // For transactions without cheque numbers
-                AND: [
-                  { account_id: transaction.accountId },
-                  { amount: transaction.amount * 100 }, // Convert to paisa
-                  { date: transactionDate },
-                  { payee: transaction.payee },
-                ],
-              },
-        });
+        let existingTransaction;
+        try {
+          existingTransaction = await prisma.transactions.findFirst({
+            where: transaction.cheque_no
+              ? {
+                  // For transactions with cheque numbers
+                  AND: [
+                    { account_id: transaction.accountId },
+                    { cheque_no: transaction.cheque_no },
+                  ],
+                }
+              : {
+                  // For transactions without cheque numbers
+                  AND: [
+                    { account_id: transaction.accountId },
+                    { amount: transaction.amount * 100 }, // Convert to paisa
+                    { date: transactionDate },
+                  ],
+                },
+          });
+        } catch (error) {
+          return null;
+        }
 
         return existingTransaction ? null : transaction;
       })
@@ -193,16 +195,20 @@ const bulkTransactionCreate = async (request: NextRequest) => {
     }
 
     // Bulk create non-duplicate transactions
-    const result = await prisma.transactions.createMany({
-      data: transactionsToCreate,
-    });
+    try {
+      const result = await prisma.transactions.createMany({
+        data: transactionsToCreate,
+      });
 
-    return NextResponse.json({
-      status: true,
-      message: "Transactions created successfully",
-      count: result.count,
-      skippedDuplicates,
-    });
+      return NextResponse.json({
+        status: true,
+        message: "Transactions created successfully",
+        count: result.count,
+        skippedDuplicates,
+      });
+    } catch (error) {
+      throw new Error(" Server Error");
+    }
   } catch (error) {
     console.error("Bulk transaction creation error:", error);
     return NextResponse.json(
@@ -220,45 +226,18 @@ export const POST = withErrorHandling(bulkTransactionCreate);
 // Helper function to parse date string in "DD-MM-YYYY HH:mm:ss" format
 const parseDateString = (dateString: string): Date => {
   try {
-    // Split the date and time parts
+    // dateString: 01-03-2025 10:25:07 (IST)
     const [datePart, timePart] = dateString.split(" ");
+    const [day, month, year] = datePart.split("-").map(Number);
+    const [hours, minutes, seconds] = timePart.split(":").map(Number);
 
-    // Only proceed if we have both date and time parts
-    if (!datePart || !timePart) {
-      throw new Error("Missing date or time part");
-    }
+    const istDate = new Date(year, month - 1, day, hours, minutes, seconds);
 
-    // Parse date components
-    const [day, month, year] = datePart
-      .split("-")
-      .map((num) => parseInt(num, 10));
-
-    // Parse time components
-    const [hours, minutes, seconds] = timePart
-      .split(":")
-      .map((num) => parseInt(num, 10));
-
-    // Validate all components are numbers
-    if ([day, month, year, hours, minutes, seconds].some(isNaN)) {
-      throw new Error("Invalid number in date components");
-    }
-
-    // Validate ranges
-    if (month < 1 || month > 12) throw new Error("Invalid month");
-    if (day < 1 || day > 31) throw new Error("Invalid day");
-    if (hours < 0 || hours > 23) throw new Error("Invalid hours");
-    if (minutes < 0 || minutes > 59) throw new Error("Invalid minutes");
-    if (seconds < 0 || seconds > 59) throw new Error("Invalid seconds");
-
-    // Create date object (month is 0-based in JavaScript)
-    const date = new Date(year, month - 1, day, hours, minutes, seconds);
-
-    // Verify the date is valid
-    if (isNaN(date.getTime())) {
+    if (isNaN(istDate.getTime())) {
       throw new Error("Invalid date");
     }
-
-    return date;
+    // Convert IST to UTC
+    return new Date(istDate.getTime() - 5.5 * 60 * 60 * 1000);
   } catch (error: any) {
     throw new Error(
       `Invalid date format: ${dateString}. Expected format: DD-MM-YYYY HH:mm:ss. Error: ${error.message}`
