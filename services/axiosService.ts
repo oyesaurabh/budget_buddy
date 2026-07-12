@@ -107,6 +107,28 @@ class AxiosService {
       this.api.post("/api/charts/transaction-expense-chart", payload)
     );
   }
+  getMonthlyExpenseChart(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/charts/monthly-expense-chart", payload)
+    );
+  }
+  getAvgVsCurrentChart(tzOffset?: number): Promise<any> {
+    return handleApiCall(() =>
+      this.api.get("/api/charts/avg-vs-current-chart", {
+        params: { tzOffset },
+      })
+    );
+  }
+  getIncomeExpenseChart(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/charts/income-expense-chart", payload)
+    );
+  }
+  getTopPayeesChart(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/charts/top-payees-chart", payload)
+    );
+  }
 }
 
 const axiosService = new AxiosService(api);
