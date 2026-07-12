@@ -6,11 +6,13 @@ import { useAccountStore } from "./useAccountsHook";
 interface Category {
   id: string;
   name: string;
+  monthly_budget?: number | null; // in rupees
 }
 
 interface CreateCategoryValues {
   account_id: string;
   name: string;
+  monthly_budget?: number | null; // in rupees
 }
 
 interface CategoryStore {
@@ -114,7 +116,13 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
 
       set((state) => ({
         Categories: state.Categories.map((item) =>
-          item.id == values.id ? { ...item, name: values.name } : item
+          item.id == values.id
+            ? {
+                ...item,
+                name: values.name,
+                monthly_budget: values.monthly_budget ?? null,
+              }
+            : item
         ),
       }));
       toast.success(message ?? "Category Updated");

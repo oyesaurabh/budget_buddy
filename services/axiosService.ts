@@ -129,6 +129,11 @@ class AxiosService {
       this.api.post("/api/charts/top-payees-chart", payload)
     );
   }
+  getBudgetVsActualChart(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/charts/budget-vs-actual-chart", payload)
+    );
+  }
 }
 
 const axiosService = new AxiosService(api);

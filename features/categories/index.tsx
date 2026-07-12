@@ -26,7 +26,12 @@ const NewCategorySheet = () => {
     setIsDisabled(true);
     try {
       let success = false;
-      if (!!values) success = await editCategory({ ...values, name: v.name });
+      if (!!values)
+        success = await editCategory({
+          ...values,
+          name: v.name,
+          monthly_budget: v.monthly_budget ?? null,
+        });
       else
         success = await createCategory({
           ...v,
@@ -70,7 +75,10 @@ const NewCategorySheet = () => {
           onSubmit={onSubmit}
           onDelete={onDelete}
           disabled={isDisabled}
-          defaultValues={{ name: values.name ?? "" }}
+          defaultValues={{
+            name: values.name ?? "",
+            monthly_budget: values.monthly_budget ?? undefined,
+          }}
         />
       </SheetContent>
     </Sheet>

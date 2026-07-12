@@ -5,6 +5,7 @@ import {
   IncomeVsExpense,
   CategoryBreakdown,
   TopPayees,
+  BudgetVsActual,
 } from "@/components/charts";
 
 export default function DataCharts() {
@@ -36,6 +37,8 @@ export default function DataCharts() {
           <TopPayees />
         </div>
       </div>
+
+      <BudgetVsActual />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { useNewCategory } from "@/hooks/useCategoryHook";
 export type responseType = {
   id: string;
   name: string;
+  monthly_budget?: number | null;
 };
 
 export const columns: ColumnDef<responseType>[] = [
@@ -48,6 +49,18 @@ export const columns: ColumnDef<responseType>[] = [
           Category Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "monthly_budget",
+    header: () => <span>Monthly Budget</span>,
+    cell: ({ row }) => {
+      const budget = row.original.monthly_budget;
+      return (
+        <span>
+          {budget != null ? `₹${budget.toLocaleString("en-IN")}` : "—"}
+        </span>
       );
     },
   },

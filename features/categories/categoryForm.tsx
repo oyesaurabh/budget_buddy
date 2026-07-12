@@ -59,6 +59,34 @@ export default function CategoryForm({
             </FormItem>
           )}
         />
+        <FormField
+          name="monthly_budget"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Monthly Budget (optional)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={0}
+                  step="1"
+                  inputMode="decimal"
+                  placeholder="e.g. 5000"
+                  disabled={disabled}
+                  value={field.value ?? ""}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ""
+                        ? undefined
+                        : e.target.valueAsNumber
+                    )
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button type="submit" disabled={disabled} className="w-full">
           {disabled ? (
             <Loader2 className="animate-spin" />

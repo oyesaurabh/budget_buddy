@@ -1,9 +1,10 @@
 model categories {
-    id          String         @id @default(cuid())
-    name        String
-    account_id  String
-    account     accounts       @relation(fields: [account_id], references: [id])
-    transaction transactions[]
-    created_at  DateTime       @default(now())
-    updated_at  DateTime       @updatedAt
+    id             String         @id @default(cuid())
+    name           String
+    account_id     String
+    monthly_budget Int? // Optional monthly budget, stored in paise (like transaction amounts)
+    account        accounts       @relation(fields: [account_id], references: [id])
+    transaction    transactions[]
+    created_at     DateTime       @default(now())
+    updated_at     DateTime       @updatedAt
 }

@@ -28,6 +28,11 @@ export const accountSchema = z.object({
 export const categorySchema = z.object({
   name: z.string().min(3, "Category Name should have atleast 3 char").trim(),
   account_id: z.string().optional(),
+  // Optional monthly budget in rupees
+  monthly_budget: z
+    .number()
+    .nonnegative("Budget cannot be negative")
+    .optional(),
 });
 export const transactionSchema = z.object({
   id: z.string().optional(),
