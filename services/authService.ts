@@ -36,11 +36,13 @@ export const authMiddlewareAPI = async (request: NextRequest) => {
   });
 };
 export const authMiddlewareFrontend = async (request: NextRequest) => {
-  // Public routes that don't require authentication
-  const publicRoutes = ["/authenticate"];
-  const isPublicRoute = publicRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  );
+  const pathname = request.nextUrl.pathname;
+  const isPublicRoute =
+    pathname === "/" ||
+    pathname.startsWith("/authenticate") ||
+    pathname.startsWith("/assets/") ||
+    pathname === "/logo.svg" ||
+    pathname === "/logo-blue.svg";
   if (isPublicRoute) {
     return NextResponse.next();
   }

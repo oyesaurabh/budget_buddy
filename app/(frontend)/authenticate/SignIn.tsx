@@ -50,8 +50,8 @@ export default function SignIn() {
       localStorage.setItem("useremail", email);
 
       toast.success(message || "Login Successful");
-      router.push("/");
-      router.prefetch("/");
+      router.push("/dashboard");
+      router.prefetch("/dashboard");
     } catch (error: any) {
       toast.error(error?.message || "Something went wrong");
       console.error(error);
