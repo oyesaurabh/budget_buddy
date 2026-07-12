@@ -4,7 +4,7 @@ export default function DataCharts() {
   return (
     <div className="flex flex-col gap-4">
       <AreaVariant />
-      <div className="flex flex-row justify-between gap-2">
+      <div className="flex flex-col lg:flex-row justify-between gap-4">
         <MonthlyExpense />
         <AvgVSCurrent />
       </div>

@@ -23,7 +23,7 @@ const getAvgVsCurrentChart = async (request: NextRequest) => {
       where: {
         account: { user_id: userId },
         date: { gte: startOfCurrentMonth, lte: now },
-        amount: { gt: 0 }, // Only expenses
+        amount: { lt: 0 }, // Only expenses (stored as negative)
       },
       _sum: { amount: true },
     });
@@ -34,7 +34,7 @@ const getAvgVsCurrentChart = async (request: NextRequest) => {
       where: {
         account: { user_id: userId },
         date: { gte: sixMonthsAgo, lt: startOfCurrentMonth },
-        amount: { gt: 0 }, // Only expenses
+        amount: { lt: 0 }, // Only expenses (stored as negative)
       },
       _sum: { amount: true },
     });
@@ -81,8 +81,8 @@ const getAvgVsCurrentChart = async (request: NextRequest) => {
 
         chartData.push({
           category: categoryName,
-          avg: Math.round((avgItem?.avg ?? 0) / 100), // Convert to rupees
-          current: Math.round((currentItem?._sum.amount ?? 0) / 100), // Convert to rupees
+          avg: Math.round(Math.abs(avgItem?.avg ?? 0) / 100), // Convert to rupees (expenses stored as negative)
+          current: Math.round(Math.abs(currentItem?._sum.amount ?? 0) / 100), // Convert to rupees (expenses stored as negative)
         });
       }
     });
@@ -94,8 +94,8 @@ const getAvgVsCurrentChart = async (request: NextRequest) => {
 
       chartData.push({
         category: "Uncategorized",
-        avg: Math.round((avgItem?.avg ?? 0) / 100),
-        current: Math.round((currentItem?._sum.amount ?? 0) / 100),
+        avg: Math.round(Math.abs(avgItem?.avg ?? 0) / 100),
+        current: Math.round(Math.abs(currentItem?._sum.amount ?? 0) / 100),
       });
     }
 

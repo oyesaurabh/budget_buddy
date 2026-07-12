@@ -1,11 +1,10 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -26,21 +25,13 @@ import {
 } from "@/components/ui/select";
 import { axiosService } from "@/services";
 import { useCategoryStore } from "@/hooks/useCategoryHook";
+import { useAccountStore } from "@/hooks/useAccountsHook";
 import { Loader2 } from "lucide-react";
 import { CiSearch } from "react-icons/ci";
 
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
-
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  total: {
+    label: "Expense",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
@@ -63,24 +54,36 @@ const monthConfig = [
   value: month,
 }));
 
+// Last 5 years, current first
+const yearConfig = Array.from({ length: 5 }, (_, i) => {
+  const year = new Date().getFullYear() - i;
+  return { key: String(year), value: String(year) };
+});
+
+interface ChartDataItem {
+  category: string;
+  total: number;
+}
+
 export default function MonthlyExpense() {
-  // const [chartType, setChartType] = useState<string>("bar");
   const [month, setMonth] = useState<string>("jan");
-  const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [year, setYear] = useState<string>(String(new Date().getFullYear()));
+  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
   const [charDataLoading, setChartDataLoading] = useState(false);
-  const { Categories, isLoading } = useCategoryStore();
+  const { isLoading } = useCategoryStore();
+  const { currentAccount } = useAccountStore();
 
   const fetchData = async (payload: any) => {
     try {
       setChartDataLoading(true);
       const { status, data, message } =
-        await axiosService.getTransactionExpenseChart(payload);
+        await axiosService.getMonthlyExpenseChart(payload);
       if (!status) throw new Error(message);
 
-      // prepareChartData(data);
+      setChartData(data ?? []);
     } catch (error) {
       console.error(error);
+      setChartData([]);
     } finally {
       setChartDataLoading(false);
     }
@@ -88,113 +91,138 @@ export default function MonthlyExpense() {
 
   useEffect(() => {
     if (isLoading) return;
-    try {
-      const defaultCategoryId = Categories[0]?.id;
-      setCategoryId(defaultCategoryId);
-      const currentMonth = new Date()
-        .toLocaleString("en-US", { month: "short" })
-        .toLowerCase();
-      setMonth(currentMonth);
-      fetchData({ month: currentMonth, categoryId: defaultCategoryId });
-    } catch (error) {
-      console.error("Error setting month:", error);
-    }
-  }, [isLoading]);
+    const now = new Date();
+    const currentMonth = now
+      .toLocaleString("en-US", { month: "short" })
+      .toLowerCase();
+    const currentYear = String(now.getFullYear());
+    setMonth(currentMonth);
+    setYear(currentYear);
+    fetchData({ month: currentMonth, year: currentYear });
+  }, [isLoading, currentAccount]);
 
   const handleSearch = async () => {
     try {
-      fetchData({ month, categoryId });
+      fetchData({ month, year });
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <Card>
-      <CardHeader className="flex justify-between gap-2 space-y-0 border-b py-5 sm:flex-row">
-        <Select value={month} onValueChange={setMonth}>
-          <SelectTrigger
-            className="w-[100px] rounded-lg sm:ml-auto"
-            aria-label="Select a month"
-          >
-            <SelectValue placeholder="Select Month..." />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            {monthConfig.map((item) => (
-              <SelectItem
-                key={item.key}
-                value={item.key}
-                className="rounded-lg"
-              >
-                {item.value}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {isLoading ? (
-          <Select>
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </Select>
-        ) : (
-          <Select
-            value={categoryId}
-            onValueChange={setCategoryId}
-            defaultValue={Categories[0]?.id}
-          >
+    <Card className="w-full">
+      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+        <div className="grid flex-1 gap-1 text-center sm:text-left">
+          <CardTitle>Expense Distribution by Category</CardTitle>
+          <CardDescription>
+            Showing categorywise expenses for the month
+          </CardDescription>
+        </div>
+
+        <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
+          <Select value={month} onValueChange={setMonth} disabled={isLoading}>
             <SelectTrigger
-              className="w-[160px] rounded-lg sm:ml-auto"
-              aria-label="Select a value"
+              className="w-full md:w-[130px] rounded-lg sm:ml-auto"
+              aria-label="Select a month"
             >
-              <SelectValue placeholder="Select Category..." />
+              <SelectValue placeholder="Select Month..." />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
-              {Categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
+              {monthConfig.map((item) => (
+                <SelectItem
+                  key={item.key}
+                  value={item.key}
+                  className="rounded-lg"
+                >
+                  {item.value}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        )}
-        <Button
-          variant={"secondary"}
-          disabled={isLoading || charDataLoading}
-          onClick={handleSearch}
-        >
-          {charDataLoading ? (
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          ) : (
-            <CiSearch />
-          )}
-        </Button>
+          <Select value={year} onValueChange={setYear} disabled={isLoading}>
+            <SelectTrigger
+              className="w-full md:w-[100px] rounded-lg sm:ml-auto"
+              aria-label="Select a year"
+            >
+              <SelectValue placeholder="Select Year..." />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              {yearConfig.map((item) => (
+                <SelectItem
+                  key={item.key}
+                  value={item.key}
+                  className="rounded-lg"
+                >
+                  {item.value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            variant={"secondary"}
+            disabled={isLoading || charDataLoading}
+            onClick={handleSearch}
+          >
+            {charDataLoading ? (
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            ) : (
+              <CiSearch />
+            )}
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8} />
-          </BarChart>
-        </ChartContainer>
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+        {charDataLoading ? (
+          <div className="h-[250px] w-full bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+            <div className="w-full h-full relative">
+              {[...Array(4)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-full h-px bg-gray-200 dark:bg-gray-700"
+                  style={{ top: `${25 * (i + 1)}%` }}
+                ></div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-[250px] w-full"
+          >
+            {chartData.length === 0 ? (
+              <div className="flex items-center justify-center h-full w-full">
+                <p className="text-gray-500 text-lg">No data available</p>
+              </div>
+            ) : (
+              <BarChart accessibilityLayer data={chartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="category"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tickFormatter={(value) => String(value).slice(0, 6)}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `₹${value}`}
+                  width={60}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value) => `₹${value}`}
+                    />
+                  }
+                />
+                <Bar dataKey="total" fill="var(--color-total)" radius={8} />
+              </BarChart>
+            )}
+          </ChartContainer>
+        )}
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Expense Distribution by Category
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing Categorywise expenses for the month
-        </div>
-      </CardFooter>
     </Card>
   );
 }

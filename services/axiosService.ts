@@ -107,6 +107,16 @@ class AxiosService {
       this.api.post("/api/charts/transaction-expense-chart", payload)
     );
   }
+  getMonthlyExpenseChart(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/charts/monthly-expense-chart", payload)
+    );
+  }
+  getAvgVsCurrentChart(): Promise<any> {
+    return handleApiCall(() =>
+      this.api.get("/api/charts/avg-vs-current-chart")
+    );
+  }
 }
 
 const axiosService = new AxiosService(api);
