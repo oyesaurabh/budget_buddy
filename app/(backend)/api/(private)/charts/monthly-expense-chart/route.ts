@@ -44,9 +44,20 @@ const getMonthlyExpenseChart = async (request: NextRequest) => {
       ? parsedYear
       : new Date().getFullYear();
 
-    // Build date range for the selected month/year
-    const startDate = new Date(resolvedYear, monthIndex, 1);
-    const endDate = new Date(resolvedYear, monthIndex + 1, 0, 23, 59, 59, 999);
+    // Minutes to add to a UTC instant to get the user's local time (IST = +330),
+    // so the month window matches the user's calendar, not the server's.
+    const tzOffset = Number.isFinite(Number(body?.tzOffset))
+      ? Number(body.tzOffset)
+      : 0;
+    const MS_PER_MINUTE = 60 * 1000;
+
+    // Build the selected month's window in the user's timezone (as real UTC instants)
+    const startDate = new Date(
+      Date.UTC(resolvedYear, monthIndex, 1) - tzOffset * MS_PER_MINUTE
+    );
+    const endDate = new Date(
+      Date.UTC(resolvedYear, monthIndex + 1, 1) - tzOffset * MS_PER_MINUTE - 1
+    );
 
     // Group expenses (positive amounts) by category for the month
     const grouped = await prisma.transactions.groupBy({

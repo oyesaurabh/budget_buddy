@@ -12,10 +12,24 @@ const getAvgVsCurrentChart = async (request: NextRequest) => {
 
     const { userId } = JSON.parse(sessionHeader);
 
+    // Minutes to add to a UTC instant to get the user's local time (IST = +330),
+    // so month boundaries match the user's calendar, not the server's.
+    const tzParam = request.nextUrl.searchParams.get("tzOffset");
+    const tzOffset = Number.isFinite(Number(tzParam)) ? Number(tzParam) : 0;
+    const MS_PER_MINUTE = 60 * 1000;
+
     const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const sixMonthsAgo = new Date(startOfCurrentMonth);
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    // "Now" in the user's timezone, to pick the correct current month
+    const nowLocal = new Date(now.getTime() + tzOffset * MS_PER_MINUTE);
+    const curYear = nowLocal.getUTCFullYear();
+    const curMonth = nowLocal.getUTCMonth();
+    // Month boundaries as real UTC instants
+    const startOfCurrentMonth = new Date(
+      Date.UTC(curYear, curMonth, 1) - tzOffset * MS_PER_MINUTE
+    );
+    const sixMonthsAgo = new Date(
+      Date.UTC(curYear, curMonth - 6, 1) - tzOffset * MS_PER_MINUTE
+    );
 
     // Get current month totals (only expenses - positive amounts)
     const currentMonth = await prisma.transactions.groupBy({

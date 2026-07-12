@@ -50,8 +50,9 @@ export default function AvgVSCurrent() {
   const fetchData = async () => {
     try {
       setChartDataLoading(true);
+      const tzOffset = -new Date().getTimezoneOffset();
       const { status, data, message } =
-        await axiosService.getAvgVsCurrentChart();
+        await axiosService.getAvgVsCurrentChart(tzOffset);
       if (!status) throw new Error(message);
 
       setChartData(data ?? []);

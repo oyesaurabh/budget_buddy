@@ -112,9 +112,16 @@ class AxiosService {
       this.api.post("/api/charts/monthly-expense-chart", payload)
     );
   }
-  getAvgVsCurrentChart(): Promise<any> {
+  getAvgVsCurrentChart(tzOffset?: number): Promise<any> {
     return handleApiCall(() =>
-      this.api.get("/api/charts/avg-vs-current-chart")
+      this.api.get("/api/charts/avg-vs-current-chart", {
+        params: { tzOffset },
+      })
+    );
+  }
+  getIncomeExpenseChart(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/charts/income-expense-chart", payload)
     );
   }
 }
