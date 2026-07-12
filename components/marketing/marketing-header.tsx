@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 
-import MarketingThemeToggle from "./theme-toggle";
+import { DarkmodeToggle } from "@/components/darkmode-toggle";
 
 const links = [
   { label: "Features", href: "#features" },
@@ -51,7 +51,7 @@ export default function MarketingHeader({
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <MarketingThemeToggle />
+          <DarkmodeToggle className="border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 dark:hover:text-white" />
           <Link
             href={authHref}
             className="inline-flex h-10 items-center justify-center rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:ring-offset-slate-950"
@@ -91,7 +91,7 @@ export default function MarketingHeader({
               </Link>
             ))}
             <div className="mt-3 flex items-center gap-3 border-t border-slate-200 pt-4 dark:border-white/10">
-              <MarketingThemeToggle />
+              <DarkmodeToggle className="border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 dark:hover:text-white" />
               <Link
                 href={authHref}
                 onClick={() => setMenuOpen(false)}

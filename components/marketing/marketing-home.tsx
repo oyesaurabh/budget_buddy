@@ -1,53 +1,66 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
-  FiCheckCircle,
+  FiArrowRight,
+  FiBarChart2,
+  FiCreditCard,
   FiGithub,
-  FiTarget,
-  FiTrendingUp,
+  FiLayers,
+  FiShield,
+  FiTag,
+  FiUpload,
 } from "react-icons/fi";
 
 import DashboardPreview from "./dashboard-preview";
 import MarketingHeader from "./marketing-header";
 
-const benefits = [
+const features = [
   {
-    icon: FiCheckCircle,
-    text: "See where your money goes in seconds.",
+    icon: FiBarChart2,
+    title: "Visual dashboards",
+    text: "Income vs expense, category breakdowns, spending trends and top payees — all charted automatically.",
   },
   {
-    icon: FiTrendingUp,
-    text: "Spot patterns that help you save more.",
+    icon: FiCreditCard,
+    title: "Track every transaction",
+    text: "Log income and expenses with categories, notes and payees so nothing slips through.",
   },
   {
-    icon: FiTarget,
-    text: "Stay on track with goals that fit your life.",
+    icon: FiLayers,
+    title: "Multiple accounts",
+    text: "Keep your bank accounts separate and switch between them in a single click.",
+  },
+  {
+    icon: FiUpload,
+    title: "Import via CSV",
+    text: "Bulk-import your bank statements and let Budget Buddy do the sorting.",
+  },
+  {
+    icon: FiTag,
+    title: "Custom categories",
+    text: "Organise spending your way and finally see where the money really goes.",
+  },
+  {
+    icon: FiShield,
+    title: "Private & secure",
+    text: "Session-based authentication keeps your data tied to your account alone.",
   },
 ];
 
-const footerLinks = [
+const steps = [
   {
-    title: "Product",
-    links: [
-      { label: "Dashboard", href: "/dashboard" },
-      { label: "Transactions", href: "/transactions" },
-      { label: "Accounts", href: "/accounts" },
-    ],
+    number: "01",
+    title: "Create your account",
+    text: "Sign up for free in seconds — no card, no clutter.",
   },
   {
-    title: "Project",
-    links: [
-      { label: "GitHub", href: "https://github.com/oyesaurabh/budget_buddy" },
-      { label: "README", href: "https://github.com/oyesaurabh/budget_buddy#readme" },
-      { label: "Contribute", href: "https://github.com/oyesaurabh/budget_buddy/pulls" },
-    ],
+    number: "02",
+    title: "Add or import money moves",
+    text: "Enter transactions manually or import a CSV from your bank.",
   },
   {
-    title: "Legal",
-    links: [
-      { label: "Privacy", href: "#privacy" },
-      { label: "Security", href: "https://github.com/oyesaurabh/budget_buddy#-security" },
-    ],
+    number: "03",
+    title: "Watch the insights appear",
+    text: "Your dashboards update instantly so you always know where you stand.",
   },
 ];
 
@@ -57,79 +70,104 @@ export default function MarketingHome({
   isAuthenticated: boolean;
 }) {
   const startHref = isAuthenticated ? "/dashboard" : "/authenticate?tab=signup";
+  const primaryLabel = isAuthenticated ? "Go to dashboard" : "Start for free";
 
   return (
-    <div className="min-h-screen overflow-x-clip bg-white text-slate-950 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-white">
       <MarketingHeader isAuthenticated={isAuthenticated} />
 
       <main>
-        <section className="relative bg-[radial-gradient(circle_at_12%_10%,#1674f8_0,#0759df_45%,#073db9_100%)] pb-40 pt-16 sm:pt-20 lg:pb-44 lg:pt-20">
-          <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-14">
-            <div className="relative z-10 max-w-xl">
-              <h1 className="text-balance text-5xl font-bold leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-[64px]">
-                Money feels lighter when it makes sense.
-              </h1>
-              <p className="mt-7 max-w-lg text-base leading-7 text-blue-50/90 sm:text-lg">
-                One simple place to track spending, see patterns, and stay close
-                to your goals.
-              </p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href={startHref}
-                  className="inline-flex h-12 items-center justify-center rounded-lg bg-white px-7 text-sm font-semibold text-blue-700 shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-600"
-                >
-                  {isAuthenticated ? "Go to dashboard" : "Start for free"}
-                </Link>
-                <Link
-                  href="https://github.com/oyesaurabh/budget_buddy"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/70 px-7 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                >
-                  <FiGithub className="size-4" aria-hidden="true" />
-                  View on GitHub
-                </Link>
-              </div>
+        {/* Hero */}
+        <section className="relative overflow-hidden">
+          {/* soft glow */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_60%_at_50%_0%,rgba(47,120,255,0.18),transparent_70%)]"
+          />
+          <div className="mx-auto max-w-5xl px-5 pb-16 pt-16 text-center sm:px-8 sm:pt-24">
+            <Link
+              href="https://github.com/oyesaurabh/budget_buddy"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-blue-300 hover:text-blue-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-blue-300"
+            >
+              <FiGithub className="size-3.5" aria-hidden="true" />
+              Open source personal finance
+            </Link>
+
+            <h1 className="mt-6 text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
+              Understand your money,{" "}
+              <span className="text-blue-600 dark:text-blue-400">
+                without the spreadsheets.
+              </span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-xl text-pretty text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
+              Budget Buddy brings your income, spending and savings into one
+              clear dashboard — so you can make calmer money decisions every day.
+            </p>
+
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href={startHref}
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-7 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:ring-offset-slate-950 sm:w-auto"
+              >
+                {primaryLabel}
+                <FiArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href="https://github.com/oyesaurabh/budget_buddy"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 px-7 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-white/15 dark:text-white dark:hover:bg-white/5 sm:w-auto"
+              >
+                <FiGithub className="size-4" aria-hidden="true" />
+                View on GitHub
+              </Link>
             </div>
 
-            <div className="relative min-h-[340px] lg:min-h-[440px]">
-              <Image
-                src="/assets/budget-flow.png"
-                alt="Income, expenses, and savings flowing into a clear Budget Buddy overview"
-                fill
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-contain"
-                priority
-              />
-            </div>
+            <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+              Free &amp; open source · No credit card required
+            </p>
+          </div>
+
+          {/* Product preview */}
+          <div className="mx-auto max-w-6xl px-5 pb-20 sm:px-8">
+            <DashboardPreview />
           </div>
         </section>
 
+        {/* Features */}
         <section
           id="features"
-          className="relative z-10 -mt-28 bg-[#07101c] px-5 pb-20 sm:px-8 lg:-mt-36 lg:px-10 lg:pb-28"
+          className="border-t border-slate-200 bg-slate-50/60 py-20 dark:border-white/10 dark:bg-white/[0.02] sm:py-24"
         >
-          <DashboardPreview />
-          <div className="mx-auto max-w-[1180px] pt-24 text-white sm:pt-28">
-            <h2 className="text-center text-3xl font-bold tracking-[-0.04em] sm:text-4xl lg:text-5xl">
-              Clarity today. Progress tomorrow.
-            </h2>
-            <div
-              id="how-it-works"
-              className="mt-14 grid gap-8 md:grid-cols-3 md:divide-x md:divide-white/15"
-            >
-              {benefits.map((benefit) => {
-                const Icon = benefit.icon;
+          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                Everything you need to stay on top
+              </h2>
+              <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
+                Simple tools that turn raw transactions into decisions you can
+                actually act on.
+              </p>
+            </div>
+
+            <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {features.map((feature) => {
+                const Icon = feature.icon;
                 return (
                   <div
-                    key={benefit.text}
-                    className="flex items-center gap-5 md:px-8 first:md:pl-0 last:md:pr-0"
+                    key={feature.title}
+                    className="rounded-2xl border border-slate-200 bg-white p-6 transition-colors hover:border-blue-300 dark:border-white/10 dark:bg-slate-900 dark:hover:border-blue-500/40"
                   >
-                    <div className="grid size-12 shrink-0 place-items-center rounded-full border-2 border-blue-500 text-blue-400">
-                      <Icon className="size-6" aria-hidden="true" />
+                    <div className="grid size-11 place-items-center rounded-xl bg-blue-600/10 text-blue-600 dark:text-blue-400">
+                      <Icon className="size-5" aria-hidden="true" />
                     </div>
-                    <p className="max-w-[220px] text-sm leading-6 text-slate-300">
-                      {benefit.text}
+                    <h3 className="mt-5 text-lg font-semibold tracking-tight">
+                      {feature.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                      {feature.text}
                     </p>
                   </div>
                 );
@@ -137,81 +175,72 @@ export default function MarketingHome({
             </div>
           </div>
         </section>
-      </main>
 
-      <footer className="border-t border-blue-400/20 bg-[#030b15] text-white">
-        <div className="mx-auto max-w-[1440px]">
-          <div className="grid border-x border-blue-400/20 md:grid-cols-2 lg:grid-cols-[repeat(3,0.8fr)_1.2fr]">
-            {footerLinks.map((group) => (
-              <div
-                key={group.title}
-                className="border-b border-blue-400/20 p-8 sm:p-10 lg:border-b-0 lg:border-r"
-              >
-                <h3 className="font-mono text-xs uppercase tracking-[0.18em] text-blue-400">
-                  {group.title}
-                </h3>
-                <ul className="mt-7 space-y-4">
-                  {group.links.map((link) => {
-                    const protectedHref =
-                      !isAuthenticated &&
-                      ["/dashboard", "/transactions", "/accounts"].includes(link.href)
-                        ? "/authenticate"
-                        : link.href;
-                    const external = protectedHref.startsWith("http");
-                    return (
-                      <li key={link.label}>
-                        <Link
-                          href={protectedHref}
-                          target={external ? "_blank" : undefined}
-                          rel={external ? "noreferrer" : undefined}
-                          className="text-sm text-slate-300 transition-colors hover:text-white"
-                        >
-                          {link.label}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-
-            <div className="flex flex-col justify-center border-b border-blue-400/20 p-8 sm:p-10 lg:border-b-0">
-              <h3 className="max-w-xs text-2xl font-bold leading-tight tracking-[-0.04em]">
-                Ready to understand your money?
-              </h3>
-              <Link
-                href={startHref}
-                className="mt-8 inline-flex h-12 items-center justify-center rounded-lg bg-blue-600 px-7 text-sm font-semibold text-white transition-colors hover:bg-blue-500"
-              >
-                {isAuthenticated ? "Open dashboard" : "Start for free"}
-              </Link>
-            </div>
-          </div>
-
-          <div className="overflow-hidden border-x border-t border-blue-400/20 px-6 pt-7 sm:px-10">
-            <div className="select-none whitespace-nowrap text-[18vw] font-bold leading-[0.72] tracking-[-0.075em] text-blue-900/40 sm:text-[15vw] lg:text-[13vw]">
-              Budget Buddy
-            </div>
-            <div className="relative z-10 flex flex-col gap-4 border-t border-blue-400/20 py-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3 text-xs text-slate-400">
-                <Image src="/logo-blue.svg" alt="" width={28} height={29} />
-                <span>
-                  Built by Saurabh Yadav ·{" "}
-                  <Link
-                    href="https://github.com/oyesaurabh/budget_buddy"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-400 hover:text-blue-300"
-                  >
-                    Open source
-                  </Link>
-                </span>
-              </div>
-              <p id="privacy" className="text-xs text-slate-500">
-                Your data stays tied to your secure account.
+        {/* How it works */}
+        <section id="how-it-works" className="py-20 sm:py-24">
+          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                Up and running in three steps
+              </h2>
+              <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
+                No onboarding marathon. Get to insights in minutes.
               </p>
             </div>
+
+            <div className="mt-14 grid gap-8 md:grid-cols-3">
+              {steps.map((step) => (
+                <div key={step.number} className="relative">
+                  <span className="text-4xl font-bold text-blue-600/25 dark:text-blue-400/25">
+                    {step.number}
+                  </span>
+                  <h3 className="mt-3 text-lg font-semibold tracking-tight">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    {step.text}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
+        </section>
+
+        {/* CTA */}
+        <section className="px-5 pb-24 sm:px-8">
+          <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-blue-700 px-6 py-14 text-center shadow-xl shadow-blue-900/20 sm:px-12 sm:py-16">
+            <h2 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Ready to understand your money?
+            </h2>
+            <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-blue-50/90">
+              Start tracking today and see your first insights within minutes.
+            </p>
+            <Link
+              href={startHref}
+              className="mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-white px-8 text-sm font-semibold text-blue-700 transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-600"
+            >
+              {primaryLabel}
+              <FiArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-200 dark:border-white/10">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500 dark:text-slate-400 sm:flex-row sm:px-8">
+          <p>
+            Built by Saurabh Yadav ·{" "}
+            <Link
+              href="https://github.com/oyesaurabh/budget_buddy"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+            >
+              Open source
+            </Link>
+          </p>
+          <p className="text-xs">Your data stays tied to your secure account.</p>
         </div>
       </footer>
     </div>

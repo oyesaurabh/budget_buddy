@@ -1,15 +1,9 @@
 "use client";
 
-import { FiArrowDownRight, FiArrowUpRight, FiCreditCard } from "react-icons/fi";
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-} from "recharts";
+import { FiArrowDownLeft, FiArrowUpRight, FiPieChart } from "react-icons/fi";
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
-const chartData = [
+const trend = [
   { day: "1", value: 24 },
   { day: "4", value: 42 },
   { day: "7", value: 31 },
@@ -20,116 +14,158 @@ const chartData = [
   { day: "22", value: 76 },
   { day: "25", value: 61 },
   { day: "28", value: 82 },
-  { day: "31", value: 70 },
+  { day: "31", value: 74 },
+];
+
+const categories = [
+  { name: "Home", value: 48900, color: "#2f78ff" },
+  { name: "Food", value: 12400, color: "#22c55e" },
+  { name: "Gym", value: 6800, color: "#f59e0b" },
+  { name: "Travel", value: 3200, color: "#8b5cf6" },
 ];
 
 const metrics = [
   {
-    label: "Total balance",
-    value: "$2,432.18",
-    change: "+ $320.12",
-    note: "vs last month",
-    tone: "positive",
-    icon: FiCreditCard,
+    label: "Balance",
+    value: "₹1,24,320",
+    change: "+₹8,240",
+    tone: "positive" as const,
+    icon: FiPieChart,
   },
   {
     label: "Income",
-    value: "$4,560.00",
-    change: "+ $560.00",
-    note: "vs last month",
-    tone: "positive",
-    icon: FiArrowDownRight,
+    value: "₹56,365",
+    change: "+₹560",
+    tone: "positive" as const,
+    icon: FiArrowDownLeft,
   },
   {
     label: "Expenses",
-    value: "$2,127.82",
-    change: "− $240.12",
-    note: "vs last month",
-    tone: "negative",
+    value: "₹71,300",
+    change: "−₹2,410",
+    tone: "negative" as const,
     icon: FiArrowUpRight,
   },
 ];
 
 export default function DashboardPreview() {
+  const maxCategory = Math.max(...categories.map((c) => c.value));
+
   return (
-    <div className="relative mx-auto w-full max-w-[1360px] overflow-hidden rounded-[20px] border border-white/10 bg-[#07101c] shadow-2xl shadow-blue-950/30">
-      <div className="grid min-h-[286px] grid-cols-1 divide-y divide-white/10 lg:grid-cols-[repeat(3,minmax(0,1fr))_1.4fr] lg:divide-x lg:divide-y-0">
-        {metrics.map((metric) => {
-          const Icon = metric.icon;
-          return (
-            <div key={metric.label} className="p-6 sm:p-8">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-slate-400">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/40">
+      {/* Window chrome */}
+      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-white/10 dark:bg-slate-950/60">
+        <span className="size-3 rounded-full bg-rose-400/80" />
+        <span className="size-3 rounded-full bg-amber-400/80" />
+        <span className="size-3 rounded-full bg-emerald-400/80" />
+        <div className="ml-3 hidden flex-1 items-center rounded-md bg-white px-3 py-1 text-xs text-slate-400 dark:bg-white/5 sm:flex">
+          budgetbuddy.app/dashboard
+        </div>
+      </div>
+
+      <div className="p-4 sm:p-6">
+        {/* Metric cards */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {metrics.map((metric) => {
+            const Icon = metric.icon;
+            return (
+              <div
+                key={metric.label}
+                className="rounded-xl border border-slate-200 p-4 dark:border-white/10"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     {metric.label}
                   </p>
-                  <p className="mt-7 text-2xl font-bold tracking-[-0.04em] text-white sm:text-3xl">
-                    {metric.value}
-                  </p>
+                  <span
+                    className={`grid size-8 place-items-center rounded-lg ${
+                      metric.tone === "positive"
+                        ? "bg-emerald-500/10 text-emerald-500"
+                        : "bg-rose-500/10 text-rose-500"
+                    }`}
+                  >
+                    <Icon className="size-4" aria-hidden="true" />
+                  </span>
                 </div>
-                <div
-                  className={`grid size-11 place-items-center rounded-xl border ${
+                <p className="mt-3 text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  {metric.value}
+                </p>
+                <p
+                  className={`mt-1 text-xs font-medium ${
                     metric.tone === "positive"
-                      ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-400"
-                      : "border-rose-400/20 bg-rose-400/10 text-rose-400"
+                      ? "text-emerald-500"
+                      : "text-rose-500"
                   }`}
                 >
-                  <Icon className="size-5" aria-hidden="true" />
-                </div>
+                  {metric.change} this month
+                </p>
               </div>
-              <p className="mt-5 text-sm text-slate-400">
-                <span
-                  className={
-                    metric.tone === "positive"
-                      ? "font-medium text-emerald-400"
-                      : "font-medium text-rose-400"
-                  }
-                >
-                  {metric.change}
-                </span>{" "}
-                {metric.note}
-              </p>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
 
-        <div className="min-h-[286px] p-6 sm:p-8">
-          <div className="flex items-center justify-between gap-4">
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-slate-400">
-              Spending over time
-            </p>
-            <span className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-300">
-              This month
-            </span>
+        {/* Chart + category split */}
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
+          <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                Spending over time
+              </p>
+              <span className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-500 dark:border-white/10 dark:text-slate-400">
+                This month
+              </span>
+            </div>
+            <div className="mt-4 h-[132px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trend} margin={{ top: 6, right: 0, bottom: 0, left: 0 }}>
+                  <defs>
+                    <linearGradient id="previewFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#2f78ff" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#2f78ff" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#2f78ff"
+                    strokeWidth={2.5}
+                    fill="url(#previewFill)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-          <div className="mt-8 h-[150px] w-full" aria-label="Monthly spending trend">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
-                <XAxis dataKey="day" hide />
-                <Tooltip
-                  cursor={false}
-                  contentStyle={{
-                    background: "#0f172a",
-                    border: "1px solid rgba(255,255,255,.1)",
-                    borderRadius: "8px",
-                    color: "white",
-                    fontSize: "12px",
-                  }}
-                  labelFormatter={(day) => `July ${day}`}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#2f78ff"
-                  strokeWidth={3}
-                  fill="rgba(37, 99, 235, .18)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+
+          <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">
+              Top categories
+            </p>
+            <ul className="mt-4 space-y-3">
+              {categories.map((cat) => (
+                <li key={cat.name}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-600 dark:text-slate-300">
+                      {cat.name}
+                    </span>
+                    <span className="font-medium text-slate-900 dark:text-white">
+                      ₹{cat.value.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${(cat.value / maxCategory) * 100}%`,
+                        backgroundColor: cat.color,
+                      }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#07101c]" />
     </div>
   );
 }
