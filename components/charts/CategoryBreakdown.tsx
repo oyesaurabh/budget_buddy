@@ -116,7 +116,7 @@ export default function CategoryBreakdown() {
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Category Breakdown</CardTitle>
-          <CardDescription>Share of expenses per category</CardDescription>
+          {/* <CardDescription>Share of expenses per category</CardDescription> */}
         </div>
 
         <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">

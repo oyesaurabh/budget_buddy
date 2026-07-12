@@ -124,6 +124,11 @@ class AxiosService {
       this.api.post("/api/charts/income-expense-chart", payload)
     );
   }
+  getTopPayeesChart(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/charts/top-payees-chart", payload)
+    );
+  }
 }
 
 const axiosService = new AxiosService(api);

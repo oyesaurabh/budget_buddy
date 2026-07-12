@@ -116,10 +116,10 @@ export default function MonthlyExpense() {
     <Card className="w-full">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>Expense Distribution by Category</CardTitle>
-          <CardDescription>
+          <CardTitle>Expense Distribution</CardTitle>
+          {/* <CardDescription>
             Showing categorywise expenses for the month
-          </CardDescription>
+          </CardDescription> */}
         </div>
 
         <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
