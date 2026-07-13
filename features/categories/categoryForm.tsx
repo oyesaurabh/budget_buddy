@@ -1,4 +1,5 @@
 import { Loader2, TrashIcon } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -14,6 +15,36 @@ import {
 } from "@/components/ui/form";
 import { categorySchema } from "@/utils/schema";
 import { z } from "zod";
+
+// Local-state numeric input: the displayed text is fully owned by this
+// component, so React can never revert a keystroke. Only whole rupees are
+// accepted; clearing the field reports `undefined` (no budget).
+function BudgetInput({
+  value,
+  onChange,
+  disabled,
+}: {
+  value?: number;
+  onChange: (v: number | undefined) => void;
+  disabled?: boolean;
+}) {
+  const [text, setText] = useState(value != null ? String(value) : "");
+
+  return (
+    <Input
+      type="text"
+      inputMode="numeric"
+      placeholder="e.g. 5000"
+      disabled={disabled}
+      value={text}
+      onChange={(e) => {
+        const digits = e.target.value.replace(/[^0-9]/g, "");
+        setText(digits);
+        onChange(digits === "" ? undefined : Number(digits));
+      }}
+    />
+  );
+}
 
 type Props = {
   id?: string | any;
@@ -66,21 +97,10 @@ export default function CategoryForm({
             <FormItem>
               <FormLabel>Monthly Budget (optional)</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  min={0}
-                  step="1"
-                  inputMode="decimal"
-                  placeholder="e.g. 5000"
+                <BudgetInput
+                  value={field.value}
+                  onChange={field.onChange}
                   disabled={disabled}
-                  value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value === ""
-                        ? undefined
-                        : e.target.valueAsNumber
-                    )
-                  }
                 />
               </FormControl>
               <FormMessage />

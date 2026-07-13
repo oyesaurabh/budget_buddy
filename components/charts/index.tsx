@@ -5,3 +5,4 @@ export { default as IncomeVsExpense } from "./IncomeVsExpense";
 export { default as CategoryBreakdown } from "./CategoryBreakdown";
 export { default as TopPayees } from "./TopPayees";
 export { default as BudgetVsActual } from "./BudgetVsActual";
+export { default as BudgetSummary } from "./BudgetSummary";

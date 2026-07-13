@@ -6,6 +6,7 @@ import {
   CategoryBreakdown,
   TopPayees,
   BudgetVsActual,
+  BudgetSummary,
 } from "@/components/charts";
 
 export default function DataCharts() {
@@ -38,7 +39,14 @@ export default function DataCharts() {
         </div>
       </div>
 
-      <BudgetVsActual />
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="w-full lg:w-2/3">
+          <BudgetVsActual />
+        </div>
+        <div className="w-full lg:w-1/3">
+          <BudgetSummary />
+        </div>
+      </div>
     </div>
   );
 }
