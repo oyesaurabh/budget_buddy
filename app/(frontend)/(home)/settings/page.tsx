@@ -10,6 +10,7 @@ import {
   Globe,
   IndianRupee,
   Info,
+  Loader2,
   Lock,
   LogOut,
   Mail,
@@ -19,6 +20,7 @@ import {
   Upload,
   User,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +40,12 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { axiosService } from "@/services";
+import { useProfileStore } from "@/hooks/useProfileHook";
+import ChangePhotoDialog from "./ChangePhotoDialog";
+import ChangePasswordDialog from "./ChangePasswordDialog";
+
+const DEFAULT_AVATAR = "https://github.com/shadcn.png";
 
 /* ----------------------------- small building blocks ---------------------- */
 
@@ -117,11 +125,43 @@ const tabs = [
 /* --------------------------------- page ----------------------------------- */
 
 const SettingsPage = () => {
-  const [name, setName] = useState("");
+  const { name, email, avatarUrl, fetchProfile, setProfile } =
+    useProfileStore();
+  const [nameInput, setNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [photoOpen, setPhotoOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
 
   useEffect(() => {
-    setName(localStorage.getItem("username") || "");
-  }, []);
+    fetchProfile();
+  }, [fetchProfile]);
+
+  // Keep the editable name field in sync when the profile loads
+  useEffect(() => {
+    setNameInput(name);
+  }, [name]);
+
+  const handleSaveName = async () => {
+    const trimmed = nameInput.trim();
+    if (trimmed.length < 3) {
+      toast.error("Name should have at least 3 characters");
+      return;
+    }
+    try {
+      setSavingName(true);
+      const { status, data, message } = await axiosService.updateProfile({
+        name: trimmed,
+      });
+      if (!status) throw new Error(message ?? "Failed to update name");
+      setProfile({ name: data?.name ?? trimmed });
+      localStorage.setItem("username", data?.name ?? trimmed);
+      toast.success("Name updated");
+    } catch (error: any) {
+      toast.error(error?.message ?? "Something went wrong");
+    } finally {
+      setSavingName(false);
+    }
+  };
 
   return (
     <div className="max-w-screen-2xl mx-auto -mt-24">
@@ -160,50 +200,78 @@ const SettingsPage = () => {
               <TabsContent value="profile" className="mt-0 space-y-5">
                 <SettingsSection>
                   <div className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-center">
-                    <div className="grid size-16 shrink-0 place-items-center rounded-full bg-blue-600 text-xl font-semibold text-white">
-                      {(name || "U").charAt(0).toUpperCase()}
-                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={avatarUrl || DEFAULT_AVATAR}
+                      alt="Profile"
+                      className="size-16 shrink-0 rounded-full border object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
+                      }}
+                    />
                     <div className="flex-1">
                       <p className="text-base font-semibold">
                         {name || "Your Name"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        oye.saurabhyadav@gmail.com
+                        {email || "—"}
                       </p>
                     </div>
-                    <Button variant="secondary">Change photo</Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setPhotoOpen(true)}
+                    >
+                      Change photo
+                    </Button>
                   </div>
                 </SettingsSection>
 
                 <SettingsSection title="Account details">
-                  <div className="grid gap-4 py-4 first:pt-0 sm:grid-cols-2">
-                    <div className="space-y-1.5">
+                  <div className="flex flex-col gap-4 py-4 first:pt-0 sm:flex-row sm:items-end">
+                    <div className="flex-1 space-y-1.5">
                       <label className="text-xs font-medium text-muted-foreground">
                         Full name
                       </label>
-                      <Input defaultValue={name} placeholder="Your name" />
+                      <Input
+                        value={nameInput}
+                        onChange={(e) => setNameInput(e.target.value)}
+                        placeholder="Your name"
+                      />
                     </div>
-                    <div className="space-y-1.5">
+                    <div className="flex-1 space-y-1.5">
                       <label className="text-xs font-medium text-muted-foreground">
                         Email
                       </label>
-                      <Input
-                        defaultValue="oye.saurabhyadav@gmail.com"
-                        disabled
-                      />
+                      <Input value={email} disabled />
                     </div>
+                    <Button
+                      onClick={handleSaveName}
+                      disabled={savingName || nameInput.trim() === name}
+                    >
+                      {savingName ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        "Save"
+                      )}
+                    </Button>
                   </div>
+                </SettingsSection>
+
+                <SettingsSection title="Security">
                   <SettingRow
                     icon={<Lock className="size-4" />}
                     title="Password"
                     description="Change the password used to sign in."
-                    control={<Button variant="outline">Change</Button>}
+                    control={
+                      <Button
+                        variant="outline"
+                        onClick={() => setPasswordOpen(true)}
+                      >
+                        Change
+                      </Button>
+                    }
                   />
                 </SettingsSection>
-
-                <div className="flex justify-end">
-                  <Button>Save changes</Button>
-                </div>
               </TabsContent>
 
               {/* Preferences */}
@@ -396,6 +464,12 @@ const SettingsPage = () => {
           </Tabs>
         </CardContent>
       </Card>
+
+      <ChangePhotoDialog open={photoOpen} onOpenChange={setPhotoOpen} />
+      <ChangePasswordDialog
+        open={passwordOpen}
+        onOpenChange={setPasswordOpen}
+      />
     </div>
   );
 };

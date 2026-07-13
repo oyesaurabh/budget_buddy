@@ -4,6 +4,7 @@ model users {
     email      String     @unique
     password   String
     salt       String
+    avatar_url String? // Optional public URL for the profile picture
     accounts   accounts[]
     created_at DateTime   @default(now())
     updated_at DateTime   @updatedAt

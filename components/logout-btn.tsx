@@ -1,16 +1,25 @@
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { axiosService } from "@/services";
 import { useConfirm } from "@/hooks/useConfirm";
+import { useProfileStore } from "@/hooks/useProfileHook";
+
+const DEFAULT_AVATAR = "https://github.com/shadcn.png";
 
 export default function LogoutButton() {
   const router = useRouter();
+  const { avatarUrl, fetchProfile } = useProfileStore();
   const [ConfirmationDialog, confirm] = useConfirm(
     "Are you sure?",
     "You are about to logout."
   );
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleLogout = async () => {
     try {
@@ -36,8 +45,8 @@ export default function LogoutButton() {
         }}
       >
         <AvatarImage
-          className="h-9 w-9 rounded-full cursor-pointer"
-          src="https://github.com/shadcn.png"
+          className="h-9 w-9 rounded-full cursor-pointer object-cover"
+          src={avatarUrl || DEFAULT_AVATAR}
           alt="usericon"
           title="Logout"
         />

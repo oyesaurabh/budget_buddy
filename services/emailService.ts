@@ -84,6 +84,64 @@ export const getLoginSuccessTemplate = (username: string, details: LoginDetails)
   `;
 };
 
+export const getOtpTemplate = (username: string, otp: string): string => {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .header { background: #000000; padding: 30px; text-align: center; }
+        .header h1 { color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px; }
+        .content { padding: 40px 30px; line-height: 1.6; text-align: center; }
+        .otp { font-size: 34px; font-weight: 700; letter-spacing: 10px; color: #1e293b; background: #f1f5f9; border-radius: 8px; padding: 18px 0; margin: 24px 0; }
+        .muted { color: #64748b; font-size: 14px; }
+        .footer { background: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Budget Buddy</h1>
+        </div>
+        <div class="content">
+          <p>Hi ${username},</p>
+          <p>Use the verification code below to change your password.</p>
+          <div class="otp">${otp}</div>
+          <p class="muted">This code expires in 10 minutes. If you didn't request this, you can safely ignore this email.</p>
+        </div>
+        <div class="footer">
+          &copy; ${new Date().getFullYear()} Budget Buddy. All rights reserved.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+};
+
+export const sendOtpEmail = async (
+  email: string,
+  username: string,
+  otp: string
+): Promise<boolean> => {
+  try {
+    const mailOptions = {
+      from: `"Budget Buddy Security" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Your Budget Buddy verification code",
+      html: getOtpTemplate(username, otp),
+    };
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error("Error sending OTP email:", error);
+    return false;
+  }
+};
+
 export const sendLoginNotification = async (
   email: string,
   username: string,

@@ -39,6 +39,24 @@ class AxiosService {
     return handleApiCall(() => this.api.post("/api/logout"));
   }
 
+  //profile
+  getProfile(): Promise<any> {
+    return handleApiCall(() => this.api.get("/api/profile"));
+  }
+  updateProfile(payload: any): Promise<any> {
+    return handleApiCall(() => this.api.patch("/api/profile", payload));
+  }
+  requestPasswordOtp(): Promise<any> {
+    return handleApiCall(() =>
+      this.api.post("/api/profile/change-password")
+    );
+  }
+  changePassword(payload: any): Promise<any> {
+    return handleApiCall(() =>
+      this.api.patch("/api/profile/change-password", payload)
+    );
+  }
+
   //accounts
   createNewAccount(payload: any): Promise<any> {
     return handleApiCall(() => this.api.post("/api/accounts", payload));
