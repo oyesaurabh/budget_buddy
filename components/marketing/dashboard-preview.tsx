@@ -17,11 +17,10 @@ const trend = [
   { day: "31", value: 74 },
 ];
 
-const categories = [
-  { name: "Home", value: 48900, color: "#2f78ff" },
-  { name: "Food", value: 12400, color: "#22c55e" },
-  { name: "Gym", value: 6800, color: "#f59e0b" },
-  { name: "Travel", value: 3200, color: "#8b5cf6" },
+const budgets = [
+  { name: "Home", spent: 45000, budget: 50000, tone: "ok" as const },
+  { name: "Food", spent: 12400, budget: 15000, tone: "ok" as const },
+  { name: "Gym", spent: 6800, budget: 6000, tone: "over" as const },
 ];
 
 const metrics = [
@@ -49,8 +48,6 @@ const metrics = [
 ];
 
 export default function DashboardPreview() {
-  const maxCategory = Math.max(...categories.map((c) => c.value));
-
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/40">
       {/* Window chrome */}
@@ -104,20 +101,23 @@ export default function DashboardPreview() {
           })}
         </div>
 
-        {/* Chart + category split */}
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
+        {/* Cash-flow chart + budget tracker */}
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.5fr_1fr]">
           <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                Spending over time
+                Cash flow
               </p>
               <span className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-500 dark:border-white/10 dark:text-slate-400">
                 This month
               </span>
             </div>
-            <div className="mt-4 h-[132px] w-full">
+            <div className="mt-4 h-[150px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trend} margin={{ top: 6, right: 0, bottom: 0, left: 0 }}>
+                <AreaChart
+                  data={trend}
+                  margin={{ top: 6, right: 0, bottom: 0, left: 0 }}
+                >
                   <defs>
                     <linearGradient id="previewFill" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#2f78ff" stopOpacity={0.35} />
@@ -138,30 +138,39 @@ export default function DashboardPreview() {
 
           <div className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
             <p className="text-sm font-semibold text-slate-900 dark:text-white">
-              Top categories
+              Budget vs actual
             </p>
-            <ul className="mt-4 space-y-3">
-              {categories.map((cat) => (
-                <li key={cat.name}>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-600 dark:text-slate-300">
-                      {cat.name}
-                    </span>
-                    <span className="font-medium text-slate-900 dark:text-white">
-                      ₹{cat.value.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${(cat.value / maxCategory) * 100}%`,
-                        backgroundColor: cat.color,
-                      }}
-                    />
-                  </div>
-                </li>
-              ))}
+            <ul className="mt-4 space-y-3.5">
+              {budgets.map((b) => {
+                const pct = Math.min((b.spent / b.budget) * 100, 100);
+                const over = b.tone === "over";
+                return (
+                  <li key={b.name}>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-600 dark:text-slate-300">
+                        {b.name}
+                      </span>
+                      <span
+                        className={
+                          over
+                            ? "font-medium text-rose-500"
+                            : "font-medium text-slate-900 dark:text-white"
+                        }
+                      >
+                        ₹{b.spent.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                      <div
+                        className={`h-full rounded-full ${
+                          over ? "bg-rose-500" : "bg-blue-600"
+                        }`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
