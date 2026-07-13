@@ -38,12 +38,13 @@ export default function DataGrid() {
   }, [currentAccount]);
 
   return (
-    <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-2 mb-8">
+    <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pb-2 mb-8">
       <DataCards
         title="Total Income"
         value={data.total_income}
         percentageChange={data.pre_total_income}
         Icon={BsGraphUpArrow}
+        accent="emerald"
         isLoading={isLoading}
       />
       <DataCards
@@ -51,6 +52,7 @@ export default function DataGrid() {
         value={data.total_expenses}
         percentageChange={data.pre_total_expenses}
         Icon={BsGraphDownArrow}
+        accent="rose"
         isLoading={isLoading}
       />
       <DataCards
@@ -58,6 +60,7 @@ export default function DataGrid() {
         value={data.net_savings}
         percentageChange={data.pre_net_savings}
         Icon={MdOutlineEnergySavingsLeaf}
+        accent="blue"
         isLoading={isLoading}
       />
       <DataCards
@@ -65,6 +68,7 @@ export default function DataGrid() {
         value={data.avg_daily_spending}
         percentageChange={data.pre_avg_daily_spending}
         Icon={FiActivity}
+        accent="amber"
         isLoading={isLoading}
       />
     </div>
