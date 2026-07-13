@@ -19,7 +19,7 @@ import UseDateRangePicker from "@/components/date-range-picker";
 
 const TransactionPage = () => {
   //hooks
-  const { currentAccount } = useAccountStore();
+  const { currentAccount, fetchAccounts } = useAccountStore();
   const { getFormattedRange } = useDatePickerStore();
   const { onOpen, setValues } = useNewTransaction();
 
@@ -71,6 +71,8 @@ const TransactionPage = () => {
         return;
       }
       toast.success(message ?? "Transactions deleted successfully"); //TODO: show transactions without the deleted ones
+      // Deleted transactions may have changed the balance — refresh accounts
+      await fetchAccounts();
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "An unknown error occurred";

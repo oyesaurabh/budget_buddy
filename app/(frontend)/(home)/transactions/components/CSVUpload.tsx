@@ -32,7 +32,7 @@ interface CSVUploadProps {
 }
 
 const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
-  const { error, accounts, currentAccount, setCurrentAccount } =
+  const { error, accounts, currentAccount, setCurrentAccount, fetchAccounts } =
     useAccountStore();
   const { Categories } = useCategoryStore();
   const [file, setFile] = useState<File | null>(null);
@@ -109,6 +109,8 @@ const CSVUpload: React.FC<CSVUploadProps> = ({ open, onOpenChange }) => {
       const { status, message } = response ?? {};
       if (!status) throw new Error(message ?? "Error while Bulk Upload");
       toast.success("Uploaded");
+      // Imported transactions may have changed the balance — refresh accounts
+      await fetchAccounts();
       onOpenChange(false);
     } catch (error: any) {
       toast.error(error?.message || "Something went wrong");

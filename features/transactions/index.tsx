@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { useNewTransaction } from "@/stores/useTransactionStore";
 import { axiosService } from "@/services";
+import { useAccountStore } from "@/hooks/useAccountsHook";
 
 type formValues = z.input<typeof transactionSchema>;
 
@@ -33,6 +34,8 @@ const NewTransactionSheet = ({
       else success = await createTransaction(v);
 
       if (success) {
+        // The account balance may have changed — refresh it
+        await useAccountStore.getState().fetchAccounts();
         onClose();
       }
     } catch (error: any) {

@@ -194,11 +194,46 @@ const bulkTransactionCreate = async (request: NextRequest) => {
       });
     }
 
-    // Bulk create non-duplicate transactions
+    // Work out how much each account's balance should move. The balance is a
+    // snapshot taken at `balance_date`, so we only apply transactions dated on
+    // or after that snapshot (credits are positive, debits negative).
+    const accountIds = [
+      ...new Set(transactionsToCreate.map((t) => t.account_id)),
+    ];
+    const accountsForBalance = await prisma.accounts.findMany({
+      where: { id: { in: accountIds } },
+      select: { id: true, balance_date: true },
+    });
+    const balanceDateById = new Map(
+      accountsForBalance.map((a) => [a.id, a.balance_date])
+    );
+
+    const deltaByAccount = new Map<string, number>();
+    for (const t of transactionsToCreate) {
+      const balanceDate = balanceDateById.get(t.account_id);
+      if (balanceDate && t.date >= balanceDate) {
+        deltaByAccount.set(
+          t.account_id,
+          (deltaByAccount.get(t.account_id) ?? 0) + t.amount
+        );
+      }
+    }
+
+    const balanceUpdates = [...deltaByAccount.entries()]
+      .filter(([, delta]) => delta !== 0)
+      .map(([accountId, delta]) =>
+        prisma.accounts.update({
+          where: { id: accountId },
+          data: { balance: { increment: delta } },
+        })
+      );
+
+    // Bulk create non-duplicate transactions and apply balance updates atomically
     try {
-      const result = await prisma.transactions.createMany({
-        data: transactionsToCreate,
-      });
+      const [result] = await prisma.$transaction([
+        prisma.transactions.createMany({ data: transactionsToCreate }),
+        ...balanceUpdates,
+      ]);
 
       return NextResponse.json({
         status: true,

@@ -59,10 +59,13 @@ export const useAccountStore = create<AccountStore>((set) => ({
 
       set({ accounts: data, isAccountLoading: false });
 
-      if (!useAccountStore.getState().currentAccount && data.length > 0) {
-        useAccountStore.getState().setCurrentAccount(data[0]);
+      const current = useAccountStore.getState().currentAccount;
+      if (current) {
+        // Re-sync the selected account with fresh data (e.g. updated balance)
+        const fresh = data.find((acc: Account) => acc.id === current.id);
+        useAccountStore.getState().setCurrentAccount(fresh ?? data[0] ?? null);
       } else if (data.length > 0) {
-        useCategoryStore.getState().fetchCategories(data[0].id);
+        useAccountStore.getState().setCurrentAccount(data[0]);
       }
     } catch (err) {
       const errorMessage =

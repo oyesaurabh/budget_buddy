@@ -5,6 +5,45 @@ import { transactionSchema } from "@/utils/schema";
 import { z } from "zod";
 type Transaction = z.infer<typeof transactionSchema>;
 
+type BalanceEntry = { accountId: string; date: Date; amountPaise: number };
+
+// Sum how much each account's balance should change, honouring the rule that a
+// transaction only affects a balance when dated on or after that account's
+// balance_date snapshot. Amounts are in paise (negative to reverse an effect).
+const computeBalanceDeltas = async (
+  entries: BalanceEntry[]
+): Promise<Map<string, number>> => {
+  const accountIds = [...new Set(entries.map((e) => e.accountId))];
+  const accounts = await prisma.accounts.findMany({
+    where: { id: { in: accountIds } },
+    select: { id: true, balance_date: true },
+  });
+  const balanceDateById = new Map(accounts.map((a) => [a.id, a.balance_date]));
+
+  const deltas = new Map<string, number>();
+  for (const entry of entries) {
+    const balanceDate = balanceDateById.get(entry.accountId);
+    if (balanceDate && entry.date >= balanceDate) {
+      deltas.set(
+        entry.accountId,
+        (deltas.get(entry.accountId) ?? 0) + entry.amountPaise
+      );
+    }
+  }
+  return deltas;
+};
+
+// Turn a deltas map into prisma account-update operations (skipping zero deltas)
+const buildBalanceUpdates = (deltas: Map<string, number>) =>
+  [...deltas.entries()]
+    .filter(([, delta]) => delta !== 0)
+    .map(([accountId, delta]) =>
+      prisma.accounts.update({
+        where: { id: accountId },
+        data: { balance: { increment: delta } },
+      })
+    );
+
 const getTransactions = async (request: NextRequest) => {
   const sessionHeader = request.headers.get("x-user-session");
   if (!sessionHeader) {
@@ -118,20 +157,41 @@ const editTransaction = async (request: NextRequest) => {
     );
 
   try {
-    await prisma.transactions.update({
-      where: {
-        id: id,
-      },
-      data: {
-        amount: parsedAmount,
-        notes,
-        payee,
-        date,
-        cheque_no,
-        account_id,
-        category_id,
-      },
+    // Load the existing transaction so we can reverse its old balance effect
+    const existing = await prisma.transactions.findUnique({
+      where: { id },
+      select: { amount: true, date: true, account_id: true },
     });
+    if (!existing) {
+      return NextResponse.json(
+        { status: false, message: "Transaction not found" },
+        { status: 404 }
+      );
+    }
+
+    const newDate = new Date(date);
+    const delta = await computeBalanceDeltas([
+      // Reverse the old transaction from its account
+      { accountId: existing.account_id, date: existing.date, amountPaise: -existing.amount },
+      // Apply the edited transaction to its (possibly new) account
+      { accountId: account_id, date: newDate, amountPaise: parsedAmount },
+    ]);
+
+    await prisma.$transaction([
+      prisma.transactions.update({
+        where: { id: id },
+        data: {
+          amount: parsedAmount,
+          notes,
+          payee,
+          date,
+          cheque_no,
+          account_id,
+          category_id,
+        },
+      }),
+      ...buildBalanceUpdates(delta),
+    ]);
 
     return NextResponse.json({
       status: true,
@@ -170,13 +230,25 @@ const deleteTransaction = async (request: NextRequest) => {
 
   let deleteResponse;
   try {
-    deleteResponse = await prisma.transactions.deleteMany({
-      where: {
-        id: {
-          in: ids,
-        },
-      },
+    // Load the transactions first so we can reverse their balance effect
+    const txns = await prisma.transactions.findMany({
+      where: { id: { in: ids } },
+      select: { amount: true, date: true, account_id: true },
     });
+
+    const deltas = await computeBalanceDeltas(
+      txns.map((t) => ({
+        accountId: t.account_id,
+        date: t.date,
+        amountPaise: -t.amount, // reverse the effect of a deleted transaction
+      }))
+    );
+
+    const [deleted] = await prisma.$transaction([
+      prisma.transactions.deleteMany({ where: { id: { in: ids } } }),
+      ...buildBalanceUpdates(deltas),
+    ]);
+    deleteResponse = deleted;
   } catch (error) {
     throw new Error("Error while deleting accounts");
   }

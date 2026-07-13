@@ -31,20 +31,43 @@ const createTransactions = async (request: NextRequest) => {
       { status: 403 }
     );
 
-  // Create transaction
+  const amountPaise = amount * 100; // Convert to paisa
+  const txnDate = new Date(date);
+
+  // The account balance is a snapshot taken at balance_date, so only apply this
+  // transaction to it when the transaction is dated on or after that snapshot.
+  const account = await prisma.accounts.findUnique({
+    where: { id: accountId },
+    select: { balance_date: true },
+  });
+  const applyToBalance =
+    !!account?.balance_date && txnDate >= account.balance_date;
+
+  // Create transaction (and update balance atomically when applicable)
   let newTransaction;
   try {
-    newTransaction = await prisma.transactions.create({
-      data: {
-        account_id: accountId,
-        amount: amount * 100, // Convert to paisa
-        date: new Date(date),
-        category_id: categoryId || null,
-        payee,
-        cheque_no: cheque_no || null,
-        notes: notes || null,
-      },
-    });
+    const [created] = await prisma.$transaction([
+      prisma.transactions.create({
+        data: {
+          account_id: accountId,
+          amount: amountPaise,
+          date: txnDate,
+          category_id: categoryId || null,
+          payee,
+          cheque_no: cheque_no || null,
+          notes: notes || null,
+        },
+      }),
+      ...(applyToBalance
+        ? [
+            prisma.accounts.update({
+              where: { id: accountId },
+              data: { balance: { increment: amountPaise } },
+            }),
+          ]
+        : []),
+    ]);
+    newTransaction = created;
   } catch (error) {
     throw new Error("Error while creating transaction");
   }
