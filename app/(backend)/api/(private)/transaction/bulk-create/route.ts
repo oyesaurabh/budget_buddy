@@ -1,5 +1,9 @@
 import prisma from "@/lib/db";
-import { validateAccountOwnership, withErrorHandling } from "@/utils";
+import {
+  validateAccountOwnership,
+  withErrorHandling,
+  affectsBalance,
+} from "@/utils";
 import { transactionSchema } from "@/utils/schema";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -211,7 +215,7 @@ const bulkTransactionCreate = async (request: NextRequest) => {
     const deltaByAccount = new Map<string, number>();
     for (const t of transactionsToCreate) {
       const balanceDate = balanceDateById.get(t.account_id);
-      if (balanceDate && t.date >= balanceDate) {
+      if (balanceDate && affectsBalance(t.date, balanceDate)) {
         deltaByAccount.set(
           t.account_id,
           (deltaByAccount.get(t.account_id) ?? 0) + t.amount

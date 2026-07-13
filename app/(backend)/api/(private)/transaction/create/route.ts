@@ -1,5 +1,9 @@
 import prisma from "@/lib/db";
-import { validateAccountOwnership, withErrorHandling } from "@/utils";
+import {
+  validateAccountOwnership,
+  withErrorHandling,
+  affectsBalance,
+} from "@/utils";
 import { transactionSchema } from "@/utils/schema";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -41,7 +45,7 @@ const createTransactions = async (request: NextRequest) => {
     select: { balance_date: true },
   });
   const applyToBalance =
-    !!account?.balance_date && txnDate >= account.balance_date;
+    !!account?.balance_date && affectsBalance(txnDate, account.balance_date);
 
   // Create transaction (and update balance atomically when applicable)
   let newTransaction;

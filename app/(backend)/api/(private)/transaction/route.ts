@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withErrorHandling, validateAccountOwnership } from "@/utils";
+import {
+  withErrorHandling,
+  validateAccountOwnership,
+  affectsBalance,
+} from "@/utils";
 import prisma from "@/lib/db";
 import { transactionSchema } from "@/utils/schema";
 import { z } from "zod";
@@ -23,7 +27,7 @@ const computeBalanceDeltas = async (
   const deltas = new Map<string, number>();
   for (const entry of entries) {
     const balanceDate = balanceDateById.get(entry.accountId);
-    if (balanceDate && entry.date >= balanceDate) {
+    if (balanceDate && affectsBalance(entry.date, balanceDate)) {
       deltas.set(
         entry.accountId,
         (deltas.get(entry.accountId) ?? 0) + entry.amountPaise
