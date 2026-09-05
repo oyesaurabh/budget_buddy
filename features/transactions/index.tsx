@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useNewTransaction } from "@/stores/useTransactionStore";
 import { axiosService } from "@/services";
 import { useAccountStore } from "@/hooks/useAccountsHook";
+import { useCategoryStore } from "@/hooks/useCategoryHook";
 
 type formValues = z.input<typeof transactionSchema>;
 
@@ -23,6 +24,8 @@ const NewTransactionSheet = ({
   onDelete,
 }: any) => {
   const { isOpen, onClose, values } = useNewTransaction();
+  const { accounts } = useAccountStore();
+  const { Categories } = useCategoryStore();
   const [isDisabled, setIsDisabled] = useState(false);
 
   const onSubmit = async (v: formValues) => {
@@ -34,8 +37,8 @@ const NewTransactionSheet = ({
       else success = await createTransaction(v);
 
       if (success) {
-        // The account balance may have changed — refresh it
-        await useAccountStore.getState().fetchAccounts();
+        if(!!!values) //means creating
+           await useAccountStore.getState().fetchAccounts();
         onClose();
       }
     } catch (error: any) {
@@ -56,15 +59,6 @@ const NewTransactionSheet = ({
         toast.error(message ?? "Failed to create Transaction");
         return false;
       }
-
-      if (currentAccount?.id === data.account_id) {
-        // TODO: not showing the newly added transactions in the table (acc. name only)
-        const { account_id, category_id, ...rest } = data;
-        setTransactions((prev: any) => [
-          ...prev,
-          { ...rest, accountId: account_id, categoryId: category_id },
-        ]);
-      }
       toast.success(message ?? "Transaction Created");
       return true;
     } catch (err) {
@@ -83,7 +77,29 @@ const NewTransactionSheet = ({
         return false;
       }
 
-      // TODO: update the transaction in the table with the new changed values
+      setTransactions((prev: any) => {
+        if (currentAccount?.id !== values.accountId) {
+          return prev.filter((transaction: any) => transaction.id !== values.id);
+        }
+
+        return prev.map((transaction: any) => {
+          if (transaction.id !== values.id) return transaction;
+
+          const accountName = accounts.find(
+            (account) => account.id === values.accountId
+          )?.name;
+          const categoryName = Categories.find(
+            (category) => category.id === values.categoryId
+          )?.name;
+
+          return {
+            ...transaction,
+            ...values,
+            account_name: accountName ?? transaction.account_name,
+            category_name: categoryName ?? null,
+          };
+        });
+      });
       toast.success(message ?? "Transaction Updated");
       return true;
     } catch (err) {

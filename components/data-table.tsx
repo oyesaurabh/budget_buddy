@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
       (item) => item.categoryId === selectedCategory || !selectedCategory
     );
     setFilteredData(newData);
-  }, [selectedCategory]);
+  }, [data, selectedCategory]);
 
   return (
     <div>
